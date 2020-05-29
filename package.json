@@ -1,0 +1,19 @@
+{
+  "name": "nemosyne",
+  "version": "1.0.0",
+  "description": "A modern journal for our modern lives",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bobbywang000/nemosyne.git"
+  },
+  "author": "Bobby",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/bobbywang000/nemosyne/issues"
+  },
+  "homepage": "https://github.com/bobbywang000/nemosyne#readme"
+}
