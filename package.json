@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/bobbywang000/nemosyne/issues"
   },
-  "homepage": "https://github.com/bobbywang000/nemosyne#readme"
+  "homepage": "https://github.com/bobbywang000/nemosyne#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
