@@ -1,4 +1,5 @@
-# Awesome Project Build with TypeORM
+# nemosyne
+A modern journal for our modern lives.
 
 Steps to run this project:
 
