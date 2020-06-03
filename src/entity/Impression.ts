@@ -1,5 +1,4 @@
 import {Entity, PrimaryGeneratedColumn, Column, AfterLoad} from "typeorm";
-import {FuzzyDate} from "./FuzzyDate";
 
 @Entity()
 export class Impression {
@@ -8,7 +7,7 @@ export class Impression {
     id: number;
 
     @Column()
-    written: FuzzyDate;
+    written: Date;
 
     @Column()
     positivity: number;

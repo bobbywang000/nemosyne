@@ -1,5 +1,4 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToMany} from "typeorm";
-import {FuzzyDate} from "./FuzzyDate";
 import {DateRange} from "./DateRange";
 
 @Entity()
@@ -9,7 +8,7 @@ export class Entry {
     id: number;
 
     @Column()
-    writeDate: FuzzyDate;
+    writeDate: Date;
 
     @Column()
     subjectDate: Date;

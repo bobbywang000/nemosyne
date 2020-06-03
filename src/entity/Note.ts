@@ -1,5 +1,4 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from "typeorm";
-import { FuzzyDate } from "./FuzzyDate";
 import { Tag } from "./Tag";
 
 @Entity()
@@ -21,5 +20,5 @@ export class Note {
     importance: number;
 
     @Column()
-    written: FuzzyDate;
+    written: Date;
 }

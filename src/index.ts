@@ -4,7 +4,6 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Request, Response} from "express";
 import {Routes} from "./routes";
-import {FuzzyDate} from "./entity/FuzzyDate";
 
 createConnection().then(async connection => {
 
@@ -30,12 +29,6 @@ createConnection().then(async connection => {
 
     // start express server
     app.listen(3000);
-
-    const manager = connection.manager
-
-    await connection.manager.save(FuzzyDate, {
-        date: new Date("2020-02-13")
-    })
 
     console.log("Express server has started on port 3000. Open http://localhost:3000/users to see results");
 
