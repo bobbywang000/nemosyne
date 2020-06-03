@@ -1,4 +1,6 @@
-import {Entity, PrimaryGeneratedColumn, Column} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, ManyToMany} from "typeorm";
+import {FuzzyDate} from "./FuzzyDate";
+import {DateRange} from "./DateRange";
 
 @Entity()
 export class Entry {
@@ -6,13 +8,15 @@ export class Entry {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    writeDate: FuzzyDate;
+
+    @Column()
+    subjectDate: Date;
+
     @Column("text")
-    content: string;
+    text: string;
 
-    @Column()
-    lastName: string;
-
-    @Column()
-    age: number;
-
+    @ManyToMany(type => DateRange, dateRange => dateRange.entries)
+    dateRanges: DateRange[];
 }
