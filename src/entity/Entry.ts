@@ -1,9 +1,8 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToMany} from "typeorm";
-import {DateRange} from "./DateRange";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { DateRange } from './DateRange';
 
 @Entity()
 export class Entry {
-
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -13,9 +12,9 @@ export class Entry {
     @Column()
     subjectDate: Date;
 
-    @Column("text")
+    @Column('text')
     text: string;
 
-    @ManyToMany(type => DateRange, dateRange => dateRange.entries)
+    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries)
     dateRanges: DateRange[];
 }

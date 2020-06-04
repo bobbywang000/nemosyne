@@ -1,16 +1,15 @@
-import {Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToOne} from "typeorm";
-import { DateRange } from "./DateRange";
+import { Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToOne } from 'typeorm';
+import { DateRange } from './DateRange';
 
 @Entity()
 export class Impression {
-
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
     written: Date;
 
-    @OneToOne(type => DateRange, dateRange => dateRange.impression)
+    @OneToOne((type) => DateRange, (dateRange) => dateRange.impression)
     dateRange: DateRange;
 
     @Column()
