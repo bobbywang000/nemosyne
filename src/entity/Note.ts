@@ -1,16 +1,15 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from "typeorm";
-import { Tag } from "./Tag";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Tag } from './Tag';
 
 @Entity()
 export class Note {
-
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column("text")
+    @Column('text')
     text: string;
 
-    @ManyToOne(type => Tag, tag => tag.notes)
+    @ManyToOne((type) => Tag, (tag) => tag.notes)
     tag: Tag;
 
     // Some notes about a person or activity are more important than others

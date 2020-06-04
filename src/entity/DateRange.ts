@@ -1,11 +1,10 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne, JoinColumn} from "typeorm";
-import {Entry} from "./Entry";
-import {Tag} from "./Tag";
-import {Impression} from "./Impression";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Entry } from './Entry';
+import { Tag } from './Tag';
+import { Impression } from './Impression';
 
 @Entity()
 export class DateRange {
-
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -19,16 +18,16 @@ export class DateRange {
     @Column()
     title: string;
 
-    @OneToOne(type => Impression, impression => impression.dateRange)
+    @OneToOne((type) => Impression, (impression) => impression.dateRange)
     @JoinColumn()
     impression: Impression;
 
-    @Column("simple-array")
+    @Column('simple-array')
     events: string[];
 
-    @ManyToMany(type => Entry, entry => entry.dateRanges)
+    @ManyToMany((type) => Entry, (entry) => entry.dateRanges)
     entries: Entry[];
 
-    @ManyToMany(type => Entry, entry => entry.dateRanges)
+    @ManyToMany((type) => Entry, (entry) => entry.dateRanges)
     tags: Tag[];
 }
