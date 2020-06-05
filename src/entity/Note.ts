@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Tag } from './Tag';
+import { ContentType } from '../enums';
 
 @Entity()
 export class Note {
@@ -7,7 +8,14 @@ export class Note {
     id: number;
 
     @Column('text')
-    text: string;
+    content: string;
+
+    @Column({
+        type: 'simple-enum',
+        enum: ContentType,
+        default: ContentType.MARKDOWN,
+    })
+    content_type: ContentType;
 
     @ManyToOne((type) => Tag, (tag) => tag.notes)
     tag: Tag;
