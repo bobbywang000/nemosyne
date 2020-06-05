@@ -24,7 +24,11 @@ export class DateRange {
     @JoinColumn()
     impression: Impression;
 
-    @Column('simple-array')
+    @Column('simple-array', {
+        // See https://github.com/typeorm/typeorm/issues/1532, since simple-array is stored as text
+        // under the hood, we need to initialize the default to an empty string, rather than an empty array.
+        default: '',
+    })
     events: string[];
 
     @ManyToMany((type) => Entry, (entry) => entry.dateRanges)
