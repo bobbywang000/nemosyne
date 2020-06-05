@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne, JoinColumn, Unique } from 'typeorm';
 import { Entry } from './Entry';
 import { Tag } from './Tag';
 import { Impression } from './Impression';
 
 @Entity()
+@Unique('StartAndEnd', ['start', 'end'])
 export class DateRange {
     @PrimaryGeneratedColumn()
     id: number;

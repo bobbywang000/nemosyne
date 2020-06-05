@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, Unique } from 'typeorm';
 import { DateRange } from './DateRange';
 import { ContentType } from '../enums';
 
 @Entity()
+@Unique('WrittenAndSubject', ['writeDate', 'subjectDate'])
 export class Entry {
     @PrimaryGeneratedColumn()
     id: number;
