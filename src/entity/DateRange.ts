@@ -12,11 +12,12 @@ export class DateRange {
     @Column()
     start: Date;
 
-    // TODO: figure out how to set this (and title) as optional
     @Column()
     end: Date;
 
-    @Column()
+    @Column({
+        nullable: true,
+    })
     title: string;
 
     @OneToOne((type) => Impression, (impression) => impression.dateRange)
