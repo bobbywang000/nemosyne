@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 import { DateRange } from './DateRange';
+import { ContentType } from '../enums';
 
 @Entity()
 export class Entry {
@@ -13,7 +14,14 @@ export class Entry {
     subjectDate: Date;
 
     @Column('text')
-    text: string;
+    content: string;
+
+    @Column({
+        type: 'simple-enum',
+        enum: ContentType,
+        default: ContentType.MARKDOWN,
+    })
+    content_type: ContentType;
 
     @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries)
     dateRanges: DateRange[];
