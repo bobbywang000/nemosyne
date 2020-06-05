@@ -7,12 +7,18 @@ export class Tag {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({
+        unique: true,
+    })
     name: string;
 
-    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries)
+    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries, {
+        cascade: ['insert', 'update'],
+    })
     dateRanges: DateRange[];
 
-    @OneToMany((type) => Note, (note) => note.tag)
+    @OneToMany((type) => Note, (note) => note.tag, {
+        cascade: true,
+    })
     notes: Note[];
 }

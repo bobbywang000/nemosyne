@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, Unique } from 'typeorm';
 import { DateRange } from './DateRange';
 import { ContentType } from '../enums';
 
 @Entity()
+@Unique('WrittenAndSubject', ['writeDate', 'subjectDate'])
 export class Entry {
     @PrimaryGeneratedColumn()
     id: number;
@@ -23,6 +24,8 @@ export class Entry {
     })
     content_type: ContentType;
 
-    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries)
+    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries, {
+        cascade: ['insert', 'update'],
+    })
     dateRanges: DateRange[];
 }
