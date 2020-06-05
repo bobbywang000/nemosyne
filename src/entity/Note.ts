@@ -17,7 +17,9 @@ export class Note {
     })
     content_type: ContentType;
 
-    @ManyToOne((type) => Tag, (tag) => tag.notes)
+    @ManyToOne((type) => Tag, (tag) => tag.notes, {
+        cascade: ['insert', 'update'],
+    })
     tag: Tag;
 
     // Some notes about a person or activity are more important than others

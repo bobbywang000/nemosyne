@@ -24,6 +24,8 @@ export class Entry {
     })
     content_type: ContentType;
 
-    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries)
+    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries, {
+        cascade: ['insert', 'update'],
+    })
     dateRanges: DateRange[];
 }
