@@ -3,7 +3,7 @@ import { DateRange } from './DateRange';
 import { ContentType } from '../enums';
 
 @Entity()
-@Unique('WrittenAndSubject', ['writeDate', 'subjectDate'])
+@Unique('WrittenSubjectText', ['writeDate', 'subjectDate', 'content'])
 export class Entry {
     @PrimaryGeneratedColumn()
     id: number;
