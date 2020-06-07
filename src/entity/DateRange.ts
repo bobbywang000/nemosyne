@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne, JoinColumn, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne, JoinColumn, Unique, JoinTable } from 'typeorm';
 import { Entry } from './Entry';
 import { Tag } from './Tag';
 import { Impression } from './Impression';
@@ -36,10 +36,12 @@ export class DateRange {
     @ManyToMany((type) => Entry, (entry) => entry.dateRanges, {
         cascade: ['insert', 'update'],
     })
+    @JoinTable()
     entries: Entry[];
 
     @ManyToMany((type) => Entry, (entry) => entry.dateRanges, {
         cascade: ['insert', 'update'],
     })
+    @JoinTable()
     tags: Tag[];
 }
