@@ -1,28 +1,29 @@
-import { UserController } from './controller/UserController';
+import { EntryController } from './controller/EntryController';
 
 export const Routes = [
     {
         method: 'get',
-        route: '/users',
-        controller: UserController,
+        route: '/entries',
+        controller: EntryController,
         action: 'all',
     },
     {
         method: 'get',
-        route: '/users/:id',
-        controller: UserController,
+        route: '/entries/:id',
+        controller: EntryController,
         action: 'one',
     },
     {
         method: 'post',
-        route: '/users',
-        controller: UserController,
+        route: '/entries',
+        controller: EntryController,
         action: 'save',
     },
-    {
-        method: 'delete',
-        route: '/users/:id',
-        controller: UserController,
-        action: 'remove',
-    },
+    // For now no one needs to delete an entry.
+    // {
+    //     method: 'delete',
+    //     route: '/entries/:id',
+    //     controller: EntryController,
+    //     action: 'remove',
+    // },
 ];
