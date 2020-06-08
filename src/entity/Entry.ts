@@ -22,7 +22,7 @@ export class Entry {
         enum: ContentType,
         default: ContentType.MARKDOWN,
     })
-    content_type: ContentType;
+    contentType: ContentType;
 
     @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries, {
         cascade: ['insert', 'update'],
