@@ -9,7 +9,7 @@ export const Routes = [
     },
     {
         method: 'get',
-        route: '/entries/:id',
+        route: '/entries/:subjectDate',
         controller: EntryController,
         action: 'onDate',
     },
