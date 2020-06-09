@@ -9,9 +9,7 @@ export class Impression {
     @Column()
     written: Date;
 
-    @OneToOne((type) => DateRange, (dateRange) => dateRange.impression, {
-        cascade: ['insert', 'update'],
-    })
+    @OneToOne((type) => DateRange, (dateRange) => dateRange.impression)
     dateRange: DateRange;
 
     @Column()

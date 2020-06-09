@@ -20,9 +20,7 @@ export class DateRange {
     })
     title: string;
 
-    @OneToOne((type) => Impression, (impression) => impression.dateRange, {
-        cascade: ['insert', 'update'],
-    })
+    @OneToOne((type) => Impression, (impression) => impression.dateRange)
     @JoinColumn()
     impression: Impression;
 
@@ -33,15 +31,11 @@ export class DateRange {
     })
     events: string[];
 
-    @ManyToMany((type) => Entry, (entry) => entry.dateRanges, {
-        cascade: ['insert', 'update'],
-    })
+    @ManyToMany((type) => Entry, (entry) => entry.dateRanges)
     @JoinTable()
     entries: Entry[];
 
-    @ManyToMany((type) => Entry, (entry) => entry.dateRanges, {
-        cascade: ['insert', 'update'],
-    })
+    @ManyToMany((type) => Tag, (tag) => tag.dateRanges)
     @JoinTable()
     tags: Tag[];
 }

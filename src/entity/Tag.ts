@@ -12,13 +12,9 @@ export class Tag {
     })
     name: string;
 
-    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries, {
-        cascade: ['insert', 'update'],
-    })
+    @ManyToMany((type) => DateRange, (dateRange) => dateRange.tags)
     dateRanges: DateRange[];
 
-    @OneToMany((type) => Note, (note) => note.tag, {
-        cascade: true,
-    })
+    @OneToMany((type) => Note, (note) => note.tag)
     notes: Note[];
 }
