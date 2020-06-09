@@ -26,6 +26,12 @@ export const Routes = [
         controller: DateRangeController,
         action: 'allGoogleCharts',
     },
+    {
+        method: 'get',
+        route: '/datesAnyChart',
+        controller: DateRangeController,
+        action: 'allAnyChart',
+    },
     // {
     //     method: 'get',
     //     route: '/dates/:date',
