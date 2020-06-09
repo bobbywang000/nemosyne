@@ -7,13 +7,20 @@ export class EntryController {
     private repo = getRepository(Entry);
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.repo.find();
+        // Hacky way to get all dates starting w/ 2, AKA all dates starting from 2000-01-01.
+        request.params.subjectDate = '2';
+        return this.onDate(request, response, next);
     }
 
     async onDate(request: Request, response: Response, next: NextFunction) {
+        const givenSubjectDate = request.params.subjectDate;
+
         const entries = await this.repo.find({
             where: {
-                subjectDate: Like(`${request.params.subjectDate}%`),
+                subjectDate: Like(`${givenSubjectDate}%`),
+            },
+            order: {
+                subjectDate: 'ASC',
             },
             relations: ['dateRanges'],
         });
@@ -21,6 +28,8 @@ export class EntryController {
         const formattedEntries = entries.map((entry) => {
             return {
                 content: this.formatContent(entry.content, entry.contentType),
+                subjectDate: this.formatLongDate(entry.subjectDate),
+                link: this.formatLinkDate(entry.subjectDate),
                 writeDate: this.formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges.map((range) => {
                     if (range.start.getTime() === range.end.getTime()) {
@@ -32,12 +41,12 @@ export class EntryController {
             };
         });
 
-        const currDate = new Date(request.params.subjectDate);
+        const currDate = new Date(givenSubjectDate);
 
         return response.render('entry', {
             prev: this.formatLinkDate(this.getDateOffset(new Date(currDate), -1)),
             next: this.formatLinkDate(this.getDateOffset(new Date(currDate), 1)),
-            date: this.formatLongDate(currDate),
+            date: givenSubjectDate,
             entries: formattedEntries,
         });
     }
