@@ -1,4 +1,5 @@
 import { EntryController } from './controller/EntryController';
+import { DateRangeController } from './controller/DateRangeController';
 
 export const Routes = [
     {
@@ -19,6 +20,18 @@ export const Routes = [
         controller: EntryController,
         action: 'save',
     },
+    {
+        method: 'get',
+        route: '/datesGoogle',
+        controller: DateRangeController,
+        action: 'allGoogleCharts',
+    },
+    // {
+    //     method: 'get',
+    //     route: '/dates/:date',
+    //     controller: DateRangeController,
+    //     action: 'onDate',
+    // },
     // For now no one needs to delete an entry.
     // {
     //     method: 'delete',
