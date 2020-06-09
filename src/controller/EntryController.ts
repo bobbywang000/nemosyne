@@ -11,8 +11,16 @@ export class EntryController {
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
-        const entry = await this.repo.findOne(request.params.id);
-        return this.formatContent(entry.content, entry.contentType);
+        const entry = await this.repo.findOne(request.params.id, { relations: ['dateRanges'] });
+        console.log(entry);
+        return response.render('entry', {
+            content: this.formatContent(entry.content, entry.contentType),
+            date: entry.subjectDate.toDateString(),
+            writeDate: entry.writeDate.toDateString(),
+            parentRanges: entry.dateRanges.map(
+                (range) => `${range.start.toDateString()} - ${range.end.toDateString()}`,
+            ),
+        });
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
@@ -24,7 +32,7 @@ export class EntryController {
             case ContentType.HTML:
                 return content;
             default:
-                return `Content type ${contentType} not currently supported. Raw content: <code>${content}</code>`;
+                return `<p>Content type ${contentType} not currently supported. Raw content: <code>${content}</code>`;
         }
     }
 }

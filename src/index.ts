@@ -4,6 +4,9 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { Routes } from './routes';
+import { join } from 'path';
+
+const SRC_ROOT = 'src';
 
 createConnection()
     .then(async (connection) => {
@@ -24,8 +27,10 @@ createConnection()
             });
         });
 
-        // setup express app here
-        // ...
+        // setup express app
+        app.set('view engine', 'pug');
+        app.set('views', join(SRC_ROOT, 'views'));
+        app.use(express.static(join(SRC_ROOT, 'public')));
 
         // start express server
         app.listen(3000);

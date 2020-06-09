@@ -11,7 +11,7 @@ export const Routes = [
         method: 'get',
         route: '/entries/:id',
         controller: EntryController,
-        action: 'one',
+        action: 'onDate',
     },
     {
         method: 'post',
