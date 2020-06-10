@@ -1,0 +1,18 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    style
+        include css/entry.css
+
+    title #{date}
+  body
+
+  a(href=prev) prev
+  span
+  a(href=next) next
+  each entry in entries
+    h2
+      a(href=entry.link) #{entry.subjectDate} (written #{entry.writeDate})
+    h3 In ranges: #{JSON.stringify(entry.parentRanges)}
+    | !{ entry.content }

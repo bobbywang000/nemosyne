@@ -1,28 +1,23 @@
-import { UserController } from './controller/UserController';
+import { EntryController } from './controller/EntryController';
+import { DateRangeController } from './controller/DateRangeController';
 
 export const Routes = [
     {
         method: 'get',
-        route: '/users',
-        controller: UserController,
+        route: '/entries',
+        controller: EntryController,
         action: 'all',
     },
     {
         method: 'get',
-        route: '/users/:id',
-        controller: UserController,
-        action: 'one',
+        route: '/entries/:subjectDate',
+        controller: EntryController,
+        action: 'onDate',
     },
     {
-        method: 'post',
-        route: '/users',
-        controller: UserController,
-        action: 'save',
-    },
-    {
-        method: 'delete',
-        route: '/users/:id',
-        controller: UserController,
-        action: 'remove',
+        method: 'get',
+        route: '/dates',
+        controller: DateRangeController,
+        action: 'all',
     },
 ];
