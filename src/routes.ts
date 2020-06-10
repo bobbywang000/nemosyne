@@ -1,5 +1,6 @@
 import { EntryController } from './controller/EntryController';
 import { DateRangeController } from './controller/DateRangeController';
+import { TagController } from './controller/TagController';
 
 export const Routes = [
     {
@@ -31,5 +32,11 @@ export const Routes = [
         route: '/dates/from/:start/to/:end',
         controller: DateRangeController,
         action: 'between',
+    },
+    {
+        method: 'get',
+        route: '/tags',
+        controller: TagController,
+        action: 'all',
     },
 ];

@@ -19,12 +19,10 @@ export class DateRangeController {
     async between(request: Request, response: Response, next: NextFunction) {
         const start = dateToSqliteTimestamp(new Date(request.params.start));
         const end = dateToSqliteTimestamp(new Date(request.params.end));
+        const tags = request.query.tags as string[];
 
-        const ranges = await this.baseFilter(start, end).andWhere('range.start != range.end').getMany();
-        const moments = await this.baseFilter(start, end)
-            .andWhere('range.start == range.end')
-            .andWhere('range.title IS NOT NULL')
-            .getMany();
+        const ranges = await this.baseFilter(start, end, tags).andWhere('range.start != range.end').getMany();
+        const moments = await this.baseFilter(start, end, tags).andWhere('range.start == range.end').getMany();
 
         return response.render('range', {
             existingJS: this.existingJS(ranges, moments),
@@ -32,10 +30,29 @@ export class DateRangeController {
     }
 
     // Need to create a new queryBuilder for every query, so abstract this out into a new method
-    private baseFilter(start: string, end: string) {
-        return this.repo
+    private baseFilter(start: string, end: string, tags: string[]) {
+        const filterWithoutTags = this.repo
             .createQueryBuilder('range')
             .where('range.start >= :start AND range.end <= :end', { start: start, end: end });
+
+        // Relatively few ranges are tagged, and not all those days have titles, so we should show
+        // all days when tags are given. Otherwise, every single range has a tag, which we obvs
+        // shouldn't show.
+        if (tags) {
+            let formattedTags;
+            // TODO: figure out why TypeScript isn't catching that tags isn't a string and failing beforehand
+            if (Array.isArray(tags)) {
+                formattedTags = tags;
+            } else {
+                formattedTags = [tags];
+            }
+
+            return filterWithoutTags.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
+                tags: formattedTags,
+            });
+        } else {
+            return filterWithoutTags.andWhere('range.title IS NOT NULL');
+        }
     }
 
     private existingJS(ranges: DateRange[], moments: DateRange[]): string {
@@ -106,7 +123,7 @@ export class DateRangeController {
 
     private rangeToJSArray(range: DateRange): string {
         return this.escapeStringArrayToExecutableJSArray([
-            this.escapeTitleToExecutableJSLiteral(range.title),
+            this.escapeTitleToExecutableJSLiteral(range.title || ''),
             this.escapeDateToExecutableJSLiteral(range.start),
             this.escapeDateToExecutableJSLiteral(getOffsetDate(range.end, 1)),
         ]);
@@ -115,7 +132,7 @@ export class DateRangeController {
     private momentToJSArray(moment: DateRange): string {
         return this.escapeStringArrayToExecutableJSArray([
             this.escapeDateToExecutableJSLiteral(moment.start),
-            this.escapeTitleToExecutableJSLiteral(moment.title),
+            this.escapeTitleToExecutableJSLiteral(moment.title || moment.start.toISOString().split('T')[0]),
         ]);
     }
 
@@ -126,7 +143,7 @@ export class DateRangeController {
     }
 
     private escapeTitleToExecutableJSLiteral(title: string): string {
-        return title ? `"${title.replace(/"/g, "'")}"` : '';
+        return `"${title.replace(/"/g, "'")}"`;
     }
 
     private escapeDateToExecutableJSLiteral(date: Date): string {
