@@ -5,11 +5,17 @@ import { Tag } from '../entity/Tag';
 export class TagController {
     private repo = getRepository(Tag);
 
+    // link to entries, and link to range view
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.repo.find({ relations: ['dateRanges', 'dateRanges.entries'] });
-    }
-
-    async one(request: Request, response: Response, next: NextFunction) {
-        return this.all(request, response, next);
+        const tags = await this.repo.find();
+        return response.render('tag', {
+            tags: tags.map((tag) => {
+                return {
+                    name: tag.name,
+                    entriesLink: `/entries?tags=${encodeURI(tag.name)}`,
+                    datesLink: `/dates?tags=${encodeURI(tag.name)}`,
+                };
+            }),
+        });
     }
 }
