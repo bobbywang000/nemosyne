@@ -2,29 +2,37 @@ import { getRepository, Like } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
 import { ContentType } from '../enums';
-import { getOffsetDate } from '../utils';
+import { getOffsetDate, dateToSqliteTimestamp } from '../utils';
 
 export class EntryController {
     private repo = getRepository(Entry);
 
+    // Totally arbitrary
+    private MIN_YEAR = '1000';
+    private MAX_YEAR = '3000';
+
     async all(request: Request, response: Response, next: NextFunction) {
-        // Hacky way to get all dates starting w/ 2, AKA all dates starting from 2000-01-01.
-        request.params.subjectDate = '2';
-        return this.onDate(request, response, next);
+        request.params.start = this.MIN_YEAR;
+        request.params.end = this.MAX_YEAR;
+        return this.between(request, response, next);
     }
 
-    async onDate(request: Request, response: Response, next: NextFunction) {
-        const givenSubjectDate = request.params.subjectDate;
+    async on(request: Request, response: Response, next: NextFunction) {
+        request.params.start = request.params.subjectDate;
+        request.params.end = request.params.subjectDate;
+        return this.between(request, response, next);
+    }
 
-        const entries = await this.repo.find({
-            where: {
-                subjectDate: Like(`${givenSubjectDate}%`),
-            },
-            order: {
-                subjectDate: 'ASC',
-            },
-            relations: ['dateRanges'],
-        });
+    async between(request: Request, response: Response, next: NextFunction) {
+        const start = dateToSqliteTimestamp(new Date(request.params.start));
+        const end = dateToSqliteTimestamp(new Date(request.params.end));
+
+        const entries = await this.repo
+            .createQueryBuilder('entry')
+            .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
+            .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
+            .orderBy('entry.subjectDate')
+            .getMany();
 
         const formattedEntries = entries.map((entry) => {
             return {
@@ -42,12 +50,9 @@ export class EntryController {
             };
         });
 
-        const currDate = new Date(givenSubjectDate);
-
         return response.render('entry', {
-            prev: this.formatLinkDate(getOffsetDate(new Date(currDate), -1)),
-            next: this.formatLinkDate(getOffsetDate(new Date(currDate), 1)),
-            date: givenSubjectDate,
+            prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
+            next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             entries: formattedEntries,
         });
     }
@@ -81,6 +86,6 @@ export class EntryController {
     }
 
     private formatLinkDate(date: Date): string {
-        return date.toISOString().split('T')[0];
+        return `/entries/on/${date.toISOString().split('T')[0]}`;
     }
 }
