@@ -31,6 +31,7 @@ createConnection()
         app.set('view engine', 'pug');
         app.set('views', join(SRC_ROOT, 'views'));
         app.use(express.static(join(SRC_ROOT, 'public')));
+        app.use(express.static('public'));
 
         // start express server
         app.listen(3000);
