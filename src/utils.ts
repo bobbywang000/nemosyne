@@ -11,3 +11,7 @@ export const isoToSqliteTimestamp = (isoTimestamp: string): string => {
 export const dateToSqliteTimestamp = (date: Date): string => {
     return isoToSqliteTimestamp(date.toISOString());
 };
+
+export const arrayify = (input: any[] | any): any[] => {
+    return Array.isArray(input) ? input : [input];
+};

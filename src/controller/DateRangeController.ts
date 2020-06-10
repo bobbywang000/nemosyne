@@ -1,7 +1,7 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
-import { getOffsetDate, dateToSqliteTimestamp } from '../utils';
+import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
@@ -39,16 +39,9 @@ export class DateRangeController {
         // all days when tags are given. Otherwise, every single range has a tag, which we obvs
         // shouldn't show.
         if (tags) {
-            let formattedTags;
-            // TODO: figure out why TypeScript isn't catching that tags isn't a string and failing beforehand
-            if (Array.isArray(tags)) {
-                formattedTags = tags;
-            } else {
-                formattedTags = [tags];
-            }
-
             return filterWithoutTags.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
-                tags: formattedTags,
+                // TODO: figure out why TypeScript isn't catching that tags isn't a string and failing earlier
+                tags: arrayify(tags),
             });
         } else {
             return filterWithoutTags.andWhere('range.title IS NOT NULL');
