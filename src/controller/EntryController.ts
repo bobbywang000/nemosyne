@@ -2,6 +2,7 @@ import { getRepository, Like } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
 import { ContentType } from '../enums';
+import { getOffsetDate } from '../utils';
 
 export class EntryController {
     private repo = getRepository(Entry);
@@ -44,18 +45,14 @@ export class EntryController {
         const currDate = new Date(givenSubjectDate);
 
         return response.render('entry', {
-            prev: this.formatLinkDate(this.getDateOffset(new Date(currDate), -1)),
-            next: this.formatLinkDate(this.getDateOffset(new Date(currDate), 1)),
+            prev: this.formatLinkDate(getOffsetDate(new Date(currDate), -1)),
+            next: this.formatLinkDate(getOffsetDate(new Date(currDate), 1)),
             date: givenSubjectDate,
             entries: formattedEntries,
         });
     }
 
-    async save(request: Request, response: Response, next: NextFunction) {
-        return this.repo.save(request.body);
-    }
-
-    formatContent(content: string, contentType: ContentType) {
+    private formatContent(content: string, contentType: ContentType) {
         switch (contentType) {
             case ContentType.HTML:
                 return content;
@@ -64,13 +61,7 @@ export class EntryController {
         }
     }
 
-    getDateOffset(date: Date, days: number) {
-        const offsetDate = new Date(date);
-        offsetDate.setDate(offsetDate.getDate() + days);
-        return offsetDate;
-    }
-
-    formatLongDate(date: Date): string {
+    private formatLongDate(date: Date): string {
         const options = {
             timeZone: 'Etc/UTC',
             weekday: 'long',
@@ -82,14 +73,14 @@ export class EntryController {
         return date.toLocaleDateString('en-US', options);
     }
 
-    formatShortDate(date: Date): string {
+    private formatShortDate(date: Date): string {
         const options = {
             timeZone: 'Etc/UTC',
         };
         return date.toLocaleDateString('en-US', options);
     }
 
-    formatLinkDate(date: Date): string {
+    private formatLinkDate(date: Date): string {
         return date.toISOString().split('T')[0];
     }
 }

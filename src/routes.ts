@@ -15,34 +15,9 @@ export const Routes = [
         action: 'onDate',
     },
     {
-        method: 'post',
-        route: '/entries',
-        controller: EntryController,
-        action: 'save',
-    },
-    {
         method: 'get',
-        route: '/datesGoogle',
+        route: '/dates',
         controller: DateRangeController,
-        action: 'allGoogleCharts',
+        action: 'all',
     },
-    {
-        method: 'get',
-        route: '/datesAnyChart',
-        controller: DateRangeController,
-        action: 'allAnyChart',
-    },
-    // {
-    //     method: 'get',
-    //     route: '/dates/:date',
-    //     controller: DateRangeController,
-    //     action: 'onDate',
-    // },
-    // For now no one needs to delete an entry.
-    // {
-    //     method: 'delete',
-    //     route: '/entries/:id',
-    //     controller: EntryController,
-    //     action: 'remove',
-    // },
 ];
