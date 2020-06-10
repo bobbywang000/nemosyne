@@ -7,3 +7,7 @@ export const getOffsetDate = (date: Date, offsetDays: number): Date => {
 export const isoToSqliteTimestamp = (isoTimestamp: string): string => {
     return isoTimestamp.replace('T', ' ').replace('Z', '');
 };
+
+export const dateToSqliteTimestamp = (date: Date): string => {
+    return isoToSqliteTimestamp(date.toISOString());
+};
