@@ -85,9 +85,14 @@ export class DateRangeController {
             // link settings
             chart.listen("pointDblClick", function(event){
                 var point = event.point;
-                var start = new Date(point.get('start')).toISOString().split('T')[0];
-                var end = new Date(point.get('end')).toISOString().split('T')[0];
-                window.location = '/dates/from/' + start + '/to/' + end;
+                if (!!point.get('end')) {
+                    var start = new Date(point.get('start')).toISOString().split('T')[0];
+                    var end = new Date(point.get('end')).toISOString().split('T')[0];
+                    window.location = '/entries/from/' + start + '/to/' + end;
+                } else {
+                    var singleDate = new Date(point.get('x')).toISOString().split('T')[0]
+                    window.location = '/entries/on/' + singleDate;
+                }
             });
 
             // set the container id
