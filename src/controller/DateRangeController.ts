@@ -21,7 +21,10 @@ export class DateRangeController {
         const end = dateToSqliteTimestamp(new Date(request.params.end));
 
         const ranges = await this.baseFilter(start, end).andWhere('range.start != range.end').getMany();
-        const moments = await this.baseFilter(start, end).andWhere('range.start == range.end').getMany();
+        const moments = await this.baseFilter(start, end)
+            .andWhere('range.start == range.end')
+            .andWhere('range.title IS NOT NULL')
+            .getMany();
 
         return response.render('range', {
             existingJS: this.existingJS(ranges, moments),
@@ -41,16 +44,13 @@ export class DateRangeController {
 
             // create data
 
-            var rangeData = [
-                ${ranges.map((range) => this.rangeToJSArray(range)).join(',\n')}
-            ];
+            var rangeData = ${this.escapeStringArrayToExecutableJSArray(
+                ranges.map((range) => this.rangeToJSArray(range)),
+            )}
 
-            var momentData = [
-                ${moments
-                    .map((moment) => this.momentToJSArray(moment))
-                    .filter((moment) => !!moment)
-                    .join(',\n')}
-            ]
+            var momentData = ${this.escapeStringArrayToExecutableJSArray(
+                moments.map((moment) => this.momentToJSArray(moment)),
+            )}
 
             // create a chart
             var chart = anychart.timeline();
@@ -113,14 +113,10 @@ export class DateRangeController {
     }
 
     private momentToJSArray(moment: DateRange): string {
-        if (!!moment.title) {
-            return this.escapeStringArrayToExecutableJSArray([
-                this.escapeDateToExecutableJSLiteral(moment.start),
-                this.escapeTitleToExecutableJSLiteral(moment.title),
-            ]);
-        } else {
-            return null;
-        }
+        return this.escapeStringArrayToExecutableJSArray([
+            this.escapeDateToExecutableJSLiteral(moment.start),
+            this.escapeTitleToExecutableJSLiteral(moment.title),
+        ]);
     }
 
     private escapeStringArrayToExecutableJSArray(arr: string[]): string {
