@@ -3,3 +3,7 @@ export const getOffsetDate = (date: Date, offsetDays: number): Date => {
     offsetDate.setDate(offsetDate.getDate() + offsetDays);
     return offsetDate;
 };
+
+export const isoToSqliteTimestamp = (isoTimestamp: string): string => {
+    return isoTimestamp.replace('T', ' ').replace('Z', '');
+};

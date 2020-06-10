@@ -1,7 +1,7 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
-import { getOffsetDate } from '../utils';
+import { getOffsetDate, isoToSqliteTimestamp } from '../utils';
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
@@ -9,6 +9,25 @@ export class DateRangeController {
     async all(request: Request, response: Response, next: NextFunction) {
         const ranges = await this.repo.createQueryBuilder('range').where('range.start != range.end').getMany();
         const moments = await this.repo.createQueryBuilder('range').where('range.start == range.end').getMany();
+        return response.render('range', {
+            existingJS: this.existingJS(ranges, moments),
+        });
+    }
+
+    async between(request: Request, response: Response, next: NextFunction) {
+        const start = isoToSqliteTimestamp(new Date(request.params.start).toISOString());
+        const end = isoToSqliteTimestamp(new Date(request.params.end).toISOString());
+
+        const ranges = await this.repo
+            .createQueryBuilder('range')
+            .where('range.start != range.end')
+            .andWhere('range.start >= :start AND range.end <= :end', { start: start, end: end })
+            .getMany();
+        const moments = await this.repo
+            .createQueryBuilder('range')
+            .where('range.start == range.end')
+            .andWhere('range.start >= :start AND range.end <= :end', { start: start, end: end })
+            .getMany();
         return response.render('range', {
             existingJS: this.existingJS(ranges, moments),
         });
@@ -62,7 +81,7 @@ export class DateRangeController {
             zoomController.render();
 
             // link settings
-            chart.listen("pointClick", function(event){
+            chart.listen("pointDblClick", function(event){
                 var point = event.point;
                 alert(point.get('name'));
             });

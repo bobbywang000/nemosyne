@@ -20,4 +20,10 @@ export const Routes = [
         controller: DateRangeController,
         action: 'all',
     },
+    {
+        method: 'get',
+        route: '/dates/from/:start/to/:end',
+        controller: DateRangeController,
+        action: 'between',
+    },
 ];
