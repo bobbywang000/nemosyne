@@ -9,7 +9,7 @@ export class DateRangeController {
     async all(request: Request, response: Response, next: NextFunction) {
         const ranges = await this.repo.createQueryBuilder('range').where('range.start != range.end').getMany();
         const moments = await this.repo.createQueryBuilder('range').where('range.start == range.end').getMany();
-        return response.render('range_anychart', {
+        return response.render('range', {
             existingJS: this.existingJS(ranges, moments),
         });
     }
@@ -52,7 +52,7 @@ export class DateRangeController {
                 [
                     {"unit": "week", count: 1},
                     {"unit": "month", count: 1},
-                    {"unit": "quarter", count: 1}
+                    {"unit": "year", count: 1}
                 ]
             ]);
 
