@@ -10,14 +10,26 @@ export const Routes = [
     },
     {
         method: 'get',
-        route: '/entries/:subjectDate',
+        route: '/entries/on/:subjectDate',
         controller: EntryController,
-        action: 'onDate',
+        action: 'on',
+    },
+    {
+        method: 'get',
+        route: '/entries/from/:start/to/:end',
+        controller: EntryController,
+        action: 'between',
     },
     {
         method: 'get',
         route: '/dates',
         controller: DateRangeController,
         action: 'all',
+    },
+    {
+        method: 'get',
+        route: '/dates/from/:start/to/:end',
+        controller: DateRangeController,
+        action: 'between',
     },
 ];
