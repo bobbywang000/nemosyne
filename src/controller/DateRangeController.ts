@@ -77,25 +77,35 @@ export class DateRangeController {
     }
 
     private rangeToJSArray(range: DateRange): string {
-        return `[
-            ${this.escapeTitleToJSStringLiteral(range.title)},
-            new Date('${range.start.toISOString()}'),
-            new Date('${getOffsetDate(range.end, 1).toISOString()}'),
-        ]`;
+        return this.escapeStringArrayToExecutableJSArray([
+            this.escapeTitleToExecutableJSLiteral(range.title),
+            this.escapeDateToExecutableJSLiteral(range.start),
+            this.escapeDateToExecutableJSLiteral(getOffsetDate(range.end, 1)),
+        ]);
     }
 
     private momentToJSArray(moment: DateRange): string {
         if (!!moment.title) {
-            return `[
-                new Date('${moment.start.toISOString()}'),
-                ${this.escapeTitleToJSStringLiteral(moment.title)},
-            ]`;
+            return this.escapeStringArrayToExecutableJSArray([
+                this.escapeDateToExecutableJSLiteral(moment.start),
+                this.escapeTitleToExecutableJSLiteral(moment.title),
+            ]);
         } else {
             return null;
         }
     }
 
-    private escapeTitleToJSStringLiteral(title: string): string {
+    private escapeStringArrayToExecutableJSArray(arr: string[]): string {
+        return `[
+            ${arr.join(',\n')}
+        ]`;
+    }
+
+    private escapeTitleToExecutableJSLiteral(title: string): string {
         return title ? `"${title.replace(/"/g, "'")}"` : '';
+    }
+
+    private escapeDateToExecutableJSLiteral(date: Date): string {
+        return `new Date('${date.toISOString()}')`;
     }
 }
