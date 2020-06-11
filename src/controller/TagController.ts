@@ -6,7 +6,7 @@ export class TagController {
     private repo = getRepository(Tag);
 
     // link to entries, and link to range view
-    async all(request: Request, response: Response, next: NextFunction) {
+    async find(request: Request, response: Response, next: NextFunction) {
         const tags = await this.repo.find();
         return response.render('tag', {
             tags: tags.map((tag) => {

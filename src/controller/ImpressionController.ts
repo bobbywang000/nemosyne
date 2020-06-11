@@ -7,23 +7,9 @@ import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
 export class ImpressionController {
     private repo = getRepository(DateRange);
 
-    // Totally arbitrary
-    private MIN_YEAR = '1000';
-    private MAX_YEAR = '3000';
-
-    async all(request: Request, response: Response, next: NextFunction) {
-        request.params.start = this.MIN_YEAR;
-        request.params.end = this.MAX_YEAR;
-        return this.between(request, response, next);
-    }
-
-    async between(request: Request, response: Response, next: NextFunction) {
-        const start = dateToSqliteTimestamp(new Date(request.params.start));
-        const end = dateToSqliteTimestamp(new Date(request.params.end));
-
+    async find(request: Request, response: Response, next: NextFunction) {
         const rangesWithImpressions = await this.repo
             .createQueryBuilder('range')
-            .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
             .innerJoinAndSelect('range.impression', 'impression')
             .getMany();
 

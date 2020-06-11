@@ -12,21 +12,15 @@ export class EntryController {
     private MIN_YEAR = '1000';
     private MAX_YEAR = '3000';
 
-    async all(request: Request, response: Response, next: NextFunction) {
-        request.params.start = this.MIN_YEAR;
-        request.params.end = this.MAX_YEAR;
-        return this.between(request, response, next);
-    }
-
     async on(request: Request, response: Response, next: NextFunction) {
-        request.params.start = request.params.subjectDate;
-        request.params.end = request.params.subjectDate;
-        return this.between(request, response, next);
+        request.query.start = request.params.subjectDate;
+        request.query.end = request.params.subjectDate;
+        return this.find(request, response, next);
     }
 
-    async between(request: Request, response: Response, next: NextFunction) {
-        const start = dateToSqliteTimestamp(new Date(request.params.start));
-        const end = dateToSqliteTimestamp(new Date(request.params.end));
+    async find(request: Request, response: Response, next: NextFunction) {
+        const start = dateToSqliteTimestamp(new Date((request.query.start as string) || this.MIN_YEAR));
+        const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
 
         const tags = request.query.tags;
         const baseQuery = this.repo
