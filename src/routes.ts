@@ -1,6 +1,7 @@
 import { EntryController } from './controller/EntryController';
 import { DateRangeController } from './controller/DateRangeController';
 import { TagController } from './controller/TagController';
+import { ImpressionController } from './controller/ImpressionController';
 
 export const Routes = [
     {
@@ -38,5 +39,17 @@ export const Routes = [
         route: '/tags',
         controller: TagController,
         action: 'all',
+    },
+    {
+        method: 'get',
+        route: '/impressions',
+        controller: ImpressionController,
+        action: 'all',
+    },
+    {
+        method: 'get',
+        route: '/impressions/from/:start/to/:end',
+        controller: ImpressionController,
+        action: 'between',
     },
 ];
