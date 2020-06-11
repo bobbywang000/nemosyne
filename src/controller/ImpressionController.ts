@@ -57,6 +57,8 @@ export class ImpressionController {
             var series = rangePlot.hilo(mapping);
             series.name("Daily Hi-lo");
 
+            // rangePlot.priceChannels(mapping, 10);
+
             rangePlot.yScale().minimum(-8);
             rangePlot.yScale().maximum(8);
 
@@ -120,6 +122,21 @@ export class ImpressionController {
 
             rangePicker.render(chart);
             rangeSelector.render(chart);
+
+            chart.listen("pointDblClick", function(event){
+                var point = event.point;
+                alert(point);
+                if (!!point.get('end')) {
+                    var start = new Date(point.get('start')).toISOString().split('T')[0];
+                    var rawEnd = new Date(point.get('end'));
+                    rawEnd.setDate(rawEnd.getDate() - 1);
+                    var end = rawEnd.toISOString().split('T')[0]
+                    window.location = '/entries/from/' + start + '/to/' + end;
+                } else {
+                    var singleDate = new Date(point.get('x')).toISOString().split('T')[0]
+                    window.location = '/entries/on/' + singleDate;
+                }
+            });
           });
         `.trim();
     }

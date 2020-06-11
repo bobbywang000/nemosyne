@@ -1,6 +1,7 @@
 import { getRepository, Like } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
+import { Impression } from '../entity/Impression';
 import { ContentType } from '../enums';
 import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
 
@@ -32,6 +33,7 @@ export class EntryController {
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
             .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
+            .leftJoinAndSelect('dateRanges.impression', 'impression')
             .orderBy('entry.subjectDate');
 
         let fullQuery;
@@ -51,13 +53,9 @@ export class EntryController {
                 subjectDate: this.formatLongDate(entry.subjectDate),
                 link: this.formatLinkDate(entry.subjectDate),
                 writeDate: this.formatShortDate(entry.writeDate),
-                parentRanges: entry.dateRanges.map((range) => {
-                    if (range.start.getTime() === range.end.getTime()) {
-                        return this.formatShortDate(range.start);
-                    } else {
-                        return `${this.formatShortDate(range.start)} - ${this.formatShortDate(range.end)}`;
-                    }
-                }),
+                parentRanges: entry.dateRanges.map((range) =>
+                    this.formatParentRange(range.start, range.end, range.impression),
+                ),
             };
         });
 
@@ -66,6 +64,21 @@ export class EntryController {
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             entries: formattedEntries,
         });
+    }
+
+    private formatParentRange(start: Date, end: Date, impression: Impression): string {
+        let formattedDate;
+        if (start.getTime() === end.getTime()) {
+            formattedDate = this.formatShortDate(start);
+        } else {
+            formattedDate = `${this.formatShortDate(start)} - ${this.formatShortDate(end)}`;
+        }
+
+        if (impression) {
+            return `${formattedDate} (+${impression.positivity}/${impression.negativity})`;
+        } else {
+            return formattedDate;
+        }
     }
 
     private formatContent(content: string, contentType: ContentType) {
