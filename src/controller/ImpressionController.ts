@@ -52,25 +52,31 @@ export class ImpressionController {
             // chart type
             var chart = anychart.stock();
 
-            var plot = chart.plot(0);
+            var rangePlot = chart.plot(0);
 
-            // set the series
-            var series = plot.hilo(mapping);
-            // series.name("ACME Corp. stock prices");
+            var series = rangePlot.hilo(mapping);
+            series.name("Daily Hi-lo");
 
-            // set the indicators
-            var mma10 = plot.mma(mapping, 10).series();
-            mma10.stroke('#bf360c');
+            rangePlot.yScale().minimum(-8);
+            rangePlot.yScale().maximum(8);
 
-            // get a plot scale
-            yScale = plot.yScale();
+            var trendPlot = chart.plot(1);
 
-            // set minimum/maximum and inversion
-            yScale.minimum(-10);
-            yScale.maximum(10);
+            var ema3 = trendPlot.ema(mapping, 3).series();
+            ema3.name("3-day weighted avg");
+
+            var ema10 = trendPlot.ema(mapping, 10).series();
+            ema10.name("10-day weighted avg");
+
+            var ema30 = trendPlot.ema(mapping, 30).series();
+            ema30.name("30-day weighted avg");
+
+            trendPlot.yScale().minimum(-4);
+            trendPlot.yScale().maximum(4);
 
             // Set up vertical gridlines
-            plot.yMinorGrid().palette(["LightGrey", null]);
+            rangePlot.yMinorGrid().palette(["LightGrey", null]);
+            trendPlot.yMinorGrid().palette(["LightGrey", null]);
 
             chart.title('Mood');
 
@@ -102,11 +108,11 @@ export class ImpressionController {
                 {
                     'text': '500 Days',
                     'type': 'points',
-                    'count': 500,
+                    'count': 490,
                 },
                 {
                     'text': 'All',
-                    'type': 'all',
+                    'type': 'max',
                 },
             ];
 
