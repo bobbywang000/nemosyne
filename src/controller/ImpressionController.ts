@@ -62,8 +62,6 @@ export class ImpressionController {
             var mma10 = plot.mma(mapping, 10).series();
             mma10.stroke('#bf360c');
 
-            plot.bbands(mapping)
-
             // get a plot scale
             yScale = plot.yScale();
 
@@ -73,12 +71,6 @@ export class ImpressionController {
 
             // Set up vertical gridlines
             plot.yMinorGrid().palette(["LightGrey", null]);
-
-            // MACD
-            var macd = chart.plot(1).macd(mapping, 12, 26, 9);
-            macd.macdSeries().stroke('#bf360c');
-            macd.signalSeries().stroke('#ff6d00');
-            macd.histogramSeries().fill('#ffe082');
 
             chart.title('Mood');
 
