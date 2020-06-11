@@ -18,7 +18,7 @@ export class Impression {
     @Column()
     negativity: number;
 
-    protected total: number;
+    total: number;
 
     @AfterLoad()
     setTotal() {

@@ -12,5 +12,5 @@ html
   each entry in entries
     h2
       a(href=entry.link) #{entry.subjectDate} (written #{entry.writeDate})
-    h3 In ranges: #{JSON.stringify(entry.parentRanges)}
+    h3 In ranges: #{entry.parentRanges.join(", ")}
     | !{ entry.content }
