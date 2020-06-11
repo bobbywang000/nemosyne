@@ -2,7 +2,7 @@ import { getRepository, Like } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
 import { ContentType } from '../enums';
-import { getOffsetDate, dateToSqliteTimestamp } from '../utils';
+import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
 
 export class EntryController {
     private repo = getRepository(Entry);
@@ -27,12 +27,23 @@ export class EntryController {
         const start = dateToSqliteTimestamp(new Date(request.params.start));
         const end = dateToSqliteTimestamp(new Date(request.params.end));
 
-        const entries = await this.repo
+        const tags = request.query.tags;
+        const baseQuery = this.repo
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
             .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
-            .orderBy('entry.subjectDate')
-            .getMany();
+            .orderBy('entry.subjectDate');
+
+        let fullQuery;
+        if (tags) {
+            fullQuery = baseQuery.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
+                tags: arrayify(tags),
+            });
+        } else {
+            fullQuery = baseQuery;
+        }
+
+        const entries = await fullQuery.getMany();
 
         const formattedEntries = entries.map((entry) => {
             return {
