@@ -97,7 +97,9 @@ export class DateRangeController {
                 var point = event.point;
                 if (!!point.get('end')) {
                     var start = new Date(point.get('start')).toISOString().split('T')[0];
-                    var end = new Date(point.get('end')).toISOString().split('T')[0];
+                    var rawEnd = new Date(point.get('end'));
+                    rawEnd.setDate(rawEnd.getDate() - 1);
+                    var end = rawEnd.toISOString().split('T')[0]
                     window.location = '/entries/from/' + start + '/to/' + end;
                 } else {
                     var singleDate = new Date(point.get('x')).toISOString().split('T')[0]
