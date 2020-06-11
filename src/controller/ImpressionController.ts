@@ -76,6 +76,44 @@ export class ImpressionController {
 
             chart.container('container');
             chart.draw();
+
+            var rangeSelector = anychart.ui.rangeSelector();
+            var rangePicker = anychart.ui.rangePicker();
+
+            var customRanges = [
+                {
+                    'text': 'Quarter',
+                    'type': 'unit',
+                    'unit': 'quarter',
+                    'count': 1,
+                },
+                {
+                    'text': 'Half',
+                    'type': 'unit',
+                    'unit': 'semester',
+                    'count': 1,
+                },
+                {
+                    'text': 'Year',
+                    'type': 'unit',
+                    'unit': 'year',
+                    'count': 1,
+                },
+                {
+                    'text': '500 Days',
+                    'type': 'points',
+                    'count': 500,
+                },
+                {
+                    'text': 'All',
+                    'type': 'all',
+                },
+            ];
+
+            rangeSelector.ranges(customRanges);
+
+            rangePicker.render(chart);
+            rangeSelector.render(chart);
           });
         `.trim();
     }
