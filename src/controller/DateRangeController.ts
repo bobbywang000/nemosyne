@@ -15,8 +15,8 @@ export class DateRangeController {
         const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
         const tags = request.query.tags as string[];
 
-        const ranges = await this.baseFilter(start, end, tags).andWhere('range.start != range.end').getMany();
-        const moments = await this.baseFilter(start, end, tags).andWhere('range.start == range.end').getMany();
+        const ranges = await this.baseQuery(start, end, tags).andWhere('range.start != range.end').getMany();
+        const moments = await this.baseQuery(start, end, tags).andWhere('range.start == range.end').getMany();
 
         return response.render('range', {
             existingJS: this.existingJS(ranges, moments),
@@ -24,8 +24,8 @@ export class DateRangeController {
     }
 
     // Need to create a new queryBuilder for every query, so abstract this out into a new method
-    private baseFilter(start: string, end: string, tags: string[]) {
-        const filterWithoutTags = this.repo
+    private baseQuery(start: string, end: string, tags: string[]) {
+        const query = this.repo
             .createQueryBuilder('range')
             .where('range.start >= :start AND range.end <= :end', { start: start, end: end });
 
@@ -33,12 +33,12 @@ export class DateRangeController {
         // all days when tags are given. Otherwise, every single range has a tag, which we obvs
         // shouldn't show.
         if (tags) {
-            return filterWithoutTags.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
+            return query.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
                 // TODO: figure out why TypeScript isn't catching that tags isn't a string and failing earlier
                 tags: arrayify(tags),
             });
         } else {
-            return filterWithoutTags.andWhere('range.title IS NOT NULL');
+            return query.andWhere('range.title IS NOT NULL');
         }
     }
 
