@@ -22,24 +22,26 @@ export class EntryController {
         const start = dateToSqliteTimestamp(new Date((request.query.start as string) || this.MIN_YEAR));
         const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
 
-        const tags = request.query.tags;
-        const baseQuery = this.repo
+        let query = this.repo
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
             .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
             .leftJoinAndSelect('dateRanges.impression', 'impression')
             .orderBy('entry.subjectDate');
 
-        let fullQuery;
+        const tags = request.query.tags;
         if (tags) {
-            fullQuery = baseQuery.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
+            query = query.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
                 tags: arrayify(tags),
             });
-        } else {
-            fullQuery = baseQuery;
         }
 
-        const entries = await fullQuery.getMany();
+        const content = request.query.content;
+        if (content) {
+            query = query.andWhere('entry.content LIKE :content', { content: `%${content}%` });
+        }
+
+        const entries = await query.getMany();
 
         const formattedEntries = entries.map((entry) => {
             return {
