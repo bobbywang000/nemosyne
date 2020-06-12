@@ -13,6 +13,7 @@ createConnection()
         // create express app
         const app = express();
         app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({ extended: true }));
 
         // register express routes from defined application routes
         Routes.forEach((route) => {

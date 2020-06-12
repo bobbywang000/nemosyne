@@ -18,6 +18,18 @@ export const Routes = [
     },
     {
         method: 'get',
+        route: '/entries/new',
+        controller: EntryController,
+        action: 'edit',
+    },
+    {
+        method: 'post',
+        route: '/entries/new',
+        controller: EntryController,
+        action: 'create',
+    },
+    {
+        method: 'get',
         route: '/dates',
         controller: DateRangeController,
         action: 'find',

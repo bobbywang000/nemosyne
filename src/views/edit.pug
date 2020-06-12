@@ -1,0 +1,42 @@
+html
+  head
+    meta(charset='utf-8')
+    style
+      include css/base.css
+      include css/entry.css
+  body
+
+  include header.pug
+
+  form(method="post")
+    label(for="content") Content
+    textarea(id="content" name="content" rows="40" cols="100" required)
+    br
+
+    label Content Type
+    br
+    input(type="radio" id="contentType" name="contentType" value="markdown" checked)
+    label(for="html") markdown
+    br
+    input(type="radio" id="contentType" name="contentType" value="html")
+    label(for="html") html
+    br
+    input(type="radio" id="contentType" name="contentType" value="plaintext")
+    label(for="plaintext") plaintext
+    br
+
+    label(for="subjectDate") Date
+    input(type="date" id="subjectDate" name="subjectDate")
+    br
+    label(for="writtenDate") Written
+    input(type="date" id="writeDate" name="writtenDate")
+    br
+
+    label(for="positivity") Positivity
+    input(type="number" id="positivity" name="positivity" min="0" required)
+    br
+    label(for="negativity") Negativity
+    input(type="number" id="negativity" name="negativity" max="0" required)
+    br
+
+    button(type="submit", ) Save

@@ -1,12 +1,15 @@
-import { getRepository, Like, DefaultNamingStrategy } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
 import { Impression } from '../entity/Impression';
+import { DateRange } from '../entity/DateRange';
 import { ContentType } from '../enums';
 import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
 
 export class EntryController {
-    private repo = getRepository(Entry);
+    private entryRepo = getRepository(Entry);
+    private impressionRepo = getRepository(Impression);
+    private dateRangeRepo = getRepository(DateRange);
 
     // Totally arbitrary
     private MIN_YEAR = '1000';
@@ -22,7 +25,7 @@ export class EntryController {
         const start = dateToSqliteTimestamp(new Date((request.query.start as string) || this.MIN_YEAR));
         const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
 
-        let query = this.repo
+        let query = this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
             .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
@@ -64,6 +67,64 @@ export class EntryController {
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             entries: formattedEntries,
         });
+    }
+
+    // make sure to get the existing entry, if it exists, and pre-populate info based on that.
+    async edit(request: Request, response: Response, next: NextFunction) {
+        return response.render('edit');
+    }
+
+    // Redirect to the newly saved entry
+    async create(request: Request, response: Response, next: NextFunction) {
+        const body = request.body;
+        const entry = new Entry();
+        entry.content = body.content;
+        // TODO: check if it's more idiomatic to have an "enum constructor" here.
+        entry.contentType = body.contentType;
+        entry.subjectDate = this.parseDateOrDefault(body.subjectDate);
+        entry.writeDate = this.parseDateOrDefault(body.writeDate);
+        await this.entryRepo.save(entry);
+
+        let range;
+        const ranges = await this.dateRangeRepo.find({
+            where: {
+                start: dateToSqliteTimestamp(entry.subjectDate),
+                end: dateToSqliteTimestamp(entry.subjectDate),
+            },
+        });
+
+        if (ranges.length === 0) {
+            range = new DateRange();
+            range.start = entry.subjectDate;
+            range.end = entry.subjectDate;
+        } else {
+            range = ranges[0];
+        }
+
+        range.entries = [entry];
+        entry.dateRanges = [range];
+
+        await this.dateRangeRepo.save(range);
+
+        const impression = new Impression();
+        impression.positivity = parseFloat(body.positivity);
+        impression.negativity = parseFloat(body.negativity);
+        impression.written = entry.writeDate;
+
+        range.impression = impression;
+        impression.dateRange = range;
+
+        await this.impressionRepo.save(impression);
+
+        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+    }
+
+    private parseDateOrDefault(dateSlug: string): Date {
+        if (dateSlug) {
+            return new Date(dateSlug);
+        } else {
+            return new Date(this.dateToSlug(new Date()));
+        }
     }
 
     private formatParentRange(start: Date, end: Date, impression: Impression): string {
