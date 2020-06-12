@@ -1,29 +1,13 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
-import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
-// import { Impression } from '../entity/Impression';
 
 export class ImpressionController {
     private repo = getRepository(DateRange);
 
-    // Totally arbitrary
-    private MIN_YEAR = '1000';
-    private MAX_YEAR = '3000';
-
-    async all(request: Request, response: Response, next: NextFunction) {
-        request.params.start = this.MIN_YEAR;
-        request.params.end = this.MAX_YEAR;
-        return this.between(request, response, next);
-    }
-
-    async between(request: Request, response: Response, next: NextFunction) {
-        const start = dateToSqliteTimestamp(new Date(request.params.start));
-        const end = dateToSqliteTimestamp(new Date(request.params.end));
-
+    async find(request: Request, response: Response, next: NextFunction) {
         const rangesWithImpressions = await this.repo
             .createQueryBuilder('range')
-            .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
             .innerJoinAndSelect('range.impression', 'impression')
             .getMany();
 
@@ -77,11 +61,12 @@ export class ImpressionController {
             trendPlot.yScale().maximum(4);
 
             // Set up vertical gridlines
-            rangePlot.yMinorGrid().palette(["LightGrey", null]);
-            trendPlot.yMinorGrid().palette(["LightGrey", null]);
+            rangePlot.yMinorGrid().palette(["White", null]);
+            trendPlot.yMinorGrid().palette(["White", null]);
 
             chart.title('Mood');
 
+            chart.background().fill("#EEE");
             chart.container('container');
             chart.draw();
 

@@ -1,4 +1,4 @@
-import { getRepository, Like } from 'typeorm';
+import { getRepository, Like, DefaultNamingStrategy } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
 import { Impression } from '../entity/Impression';
@@ -12,21 +12,15 @@ export class EntryController {
     private MIN_YEAR = '1000';
     private MAX_YEAR = '3000';
 
-    async all(request: Request, response: Response, next: NextFunction) {
-        request.params.start = this.MIN_YEAR;
-        request.params.end = this.MAX_YEAR;
-        return this.between(request, response, next);
-    }
-
     async on(request: Request, response: Response, next: NextFunction) {
-        request.params.start = request.params.subjectDate;
-        request.params.end = request.params.subjectDate;
-        return this.between(request, response, next);
+        request.query.start = request.params.subjectDate;
+        request.query.end = request.params.subjectDate;
+        return this.find(request, response, next);
     }
 
-    async between(request: Request, response: Response, next: NextFunction) {
-        const start = dateToSqliteTimestamp(new Date(request.params.start));
-        const end = dateToSqliteTimestamp(new Date(request.params.end));
+    async find(request: Request, response: Response, next: NextFunction) {
+        const start = dateToSqliteTimestamp(new Date((request.query.start as string) || this.MIN_YEAR));
+        const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
 
         const tags = request.query.tags;
         const baseQuery = this.repo
@@ -49,13 +43,17 @@ export class EntryController {
 
         const formattedEntries = entries.map((entry) => {
             return {
+                // TODO: add the title to the formatting somewhere along here
                 content: this.formatContent(entry.content, entry.contentType),
                 subjectDate: this.formatLongDate(entry.subjectDate),
                 link: this.formatLinkDate(entry.subjectDate),
                 writeDate: this.formatShortDate(entry.writeDate),
-                parentRanges: entry.dateRanges.map((range) =>
-                    this.formatParentRange(range.start, range.end, range.impression),
-                ),
+                parentRanges: entry.dateRanges.map((range) => {
+                    return {
+                        name: this.formatParentRange(range.start, range.end, range.impression),
+                        linkParams: this.formatRangeLinkParams(range.start, range.end),
+                    };
+                }),
             };
         });
 
@@ -71,6 +69,7 @@ export class EntryController {
         if (start.getTime() === end.getTime()) {
             formattedDate = this.formatShortDate(start);
         } else {
+            // TODO: just give the title of the range here
             formattedDate = `${this.formatShortDate(start)} - ${this.formatShortDate(end)}`;
         }
 
@@ -78,6 +77,14 @@ export class EntryController {
             return `${formattedDate} (+${impression.positivity}/${impression.negativity})`;
         } else {
             return formattedDate;
+        }
+    }
+
+    private formatRangeLinkParams(start: Date, end: Date): string {
+        if (start.getTime() === end.getTime()) {
+            return null;
+        } else {
+            return `?start=${this.dateToSlug(start)}&end=${this.dateToSlug(end)}`;
         }
     }
 
@@ -110,6 +117,10 @@ export class EntryController {
     }
 
     private formatLinkDate(date: Date): string {
-        return `/entries/on/${date.toISOString().split('T')[0]}`;
+        return `/entries/on/${this.dateToSlug(date)}`;
+    }
+
+    private dateToSlug(date: Date): string {
+        return date.toISOString().split('T')[0];
     }
 }

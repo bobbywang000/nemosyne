@@ -8,7 +8,7 @@ export const Routes = [
         method: 'get',
         route: '/entries',
         controller: EntryController,
-        action: 'all',
+        action: 'find',
     },
     {
         method: 'get',
@@ -18,38 +18,20 @@ export const Routes = [
     },
     {
         method: 'get',
-        route: '/entries/from/:start/to/:end',
-        controller: EntryController,
-        action: 'between',
-    },
-    {
-        method: 'get',
         route: '/dates',
         controller: DateRangeController,
-        action: 'all',
-    },
-    {
-        method: 'get',
-        route: '/dates/from/:start/to/:end',
-        controller: DateRangeController,
-        action: 'between',
+        action: 'find',
     },
     {
         method: 'get',
         route: '/tags',
         controller: TagController,
-        action: 'all',
+        action: 'find',
     },
     {
         method: 'get',
         route: '/impressions',
         controller: ImpressionController,
-        action: 'all',
-    },
-    {
-        method: 'get',
-        route: '/impressions/from/:start/to/:end',
-        controller: ImpressionController,
-        action: 'between',
+        action: 'find',
     },
 ];
