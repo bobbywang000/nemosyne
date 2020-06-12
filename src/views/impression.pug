@@ -5,7 +5,11 @@ html
     script(type="text/javascript" src="https://cdn.anychart.com/releases/8.7.1/js/anychart-stock.min.js")
     script(type="text/javascript" src="https://cdn.anychart.com/releases/8.7.1/js/anychart-ui.min.js")
     link(rel="stylesheet" type="text/css" href="https://cdn.anychart.com/releases/8.7.1/css/anychart-ui.min.css?hcode=a0c21fc77e1449cc86299c5faa067dc4")
+    style
+        include css/base.css
 
     script !{existingJS}
   body
-    div(id="container" style="width: 100%; height:100%;")
+  include header.pug
+
+  div(id="container" style="width: 100%; height:100%;")

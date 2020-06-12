@@ -1,8 +1,6 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
-import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
-// import { Impression } from '../entity/Impression';
 
 export class ImpressionController {
     private repo = getRepository(DateRange);
@@ -63,11 +61,12 @@ export class ImpressionController {
             trendPlot.yScale().maximum(4);
 
             // Set up vertical gridlines
-            rangePlot.yMinorGrid().palette(["LightGrey", null]);
-            trendPlot.yMinorGrid().palette(["LightGrey", null]);
+            rangePlot.yMinorGrid().palette(["White", null]);
+            trendPlot.yMinorGrid().palette(["White", null]);
 
             chart.title('Mood');
 
+            chart.background().fill("#EEE");
             chart.container('container');
             chart.draw();
 

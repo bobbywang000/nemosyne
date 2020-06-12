@@ -101,8 +101,8 @@ export class DateRangeController {
                 }
             });
 
-            // set the container id
             chart.container("container");
+            chart.background().fill("#EEE");
 
             // initiate drawing the chart
             chart.draw();
