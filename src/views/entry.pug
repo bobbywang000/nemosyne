@@ -17,7 +17,10 @@ html
   each entry in entries
     h2
       a(href=entry.link) #{entry.subjectDate} (written #{entry.writeDate})
+    h4
+      a(href=entry.editLink) Edit
     | Ranges:
+
     ul
       each range in entry.parentRanges
         if range.linkParams

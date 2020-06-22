@@ -51,7 +51,9 @@ export class EntryController {
                 // TODO: add the title to the formatting somewhere along here
                 content: this.formatContent(entry.content, entry.contentType),
                 subjectDate: this.formatLongDate(entry.subjectDate),
-                link: this.formatLinkDate(entry.subjectDate),
+                link: this.formatLongDate(entry.subjectDate),
+                editLink: this.formatEditLink(entry.id),
+
                 writeDate: this.formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges.map((range) => {
                     return {
@@ -159,7 +161,6 @@ export class EntryController {
         const updatedDate = this.parseDateOrDefault(body.writeDate);
 
         entry.content = body.content;
-        // TODO: check if it's more idiomatic to have an "enum constructor" here.
         entry.contentType = body.contentType;
         entry.writeDate = updatedDate;
         await this.entryRepo.save(entry);
@@ -236,6 +237,10 @@ export class EntryController {
 
     private formatLinkDate(date: Date): string {
         return `/entries/on/${this.dateToSlug(date)}`;
+    }
+
+    private formatEditLink(id: number): string {
+        return `/entries/edit/${id}`;
     }
 
     private dateToSlug(date: Date): string {
