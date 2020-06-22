@@ -51,7 +51,7 @@ export class EntryController {
                 // TODO: add the title to the formatting somewhere along here
                 content: this.formatContent(entry.content, entry.contentType),
                 subjectDate: this.formatLongDate(entry.subjectDate),
-                link: this.formatLongDate(entry.subjectDate),
+                link: this.formatLinkDate(entry.subjectDate),
                 editLink: this.formatEditLink(entry.id),
                 deleteLink: this.formatDeleteLink(entry.id),
                 writeDate: this.formatShortDate(entry.writeDate),
