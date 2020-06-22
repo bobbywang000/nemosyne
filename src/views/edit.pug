@@ -10,7 +10,7 @@ html
 
   form(method="post")
     label(for="content") Content
-    textarea(id="content" name="content" rows="40" cols="100" required)
+    textarea(id="content" name="content" rows="40" cols="100" required) #{content}
     br
 
     label Content Type
@@ -26,17 +26,17 @@ html
     br
 
     label(for="subjectDate") Date
-    input(type="date" id="subjectDate" name="subjectDate")
+    input(type="date" id="subjectDate" name="subjectDate" value=subjectDate readonly=lockedSubjectDate)
     br
-    label(for="writtenDate") Written
-    input(type="date" id="writeDate" name="writtenDate")
+    label(for="writeDate") Written
+    input(type="date" id="writeDate" name="writeDate" value=writeDate)
     br
 
     label(for="positivity") Positivity
-    input(type="number" id="positivity" name="positivity" min="0" required)
+    input(type="number" id="positivity" name="positivity" min="0" value=positivity required)
     br
     label(for="negativity") Negativity
-    input(type="number" id="negativity" name="negativity" max="0" required)
+    input(type="number" id="negativity" name="negativity" max="0" value=negativity required)
     br
 
-    button(type="submit", ) Save
+    button(type="submit") Save

@@ -20,13 +20,25 @@ export const Routes = [
         method: 'get',
         route: '/entries/new',
         controller: EntryController,
-        action: 'edit',
+        action: 'new',
     },
     {
         method: 'post',
         route: '/entries/new',
         controller: EntryController,
         action: 'create',
+    },
+    {
+        method: 'get',
+        route: '/entries/edit/:id',
+        controller: EntryController,
+        action: 'edit',
+    },
+    {
+        method: 'post',
+        route: '/entries/edit/:id',
+        controller: EntryController,
+        action: 'update',
     },
     {
         method: 'get',

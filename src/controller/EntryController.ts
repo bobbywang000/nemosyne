@@ -69,12 +69,39 @@ export class EntryController {
         });
     }
 
-    // make sure to get the existing entry, if it exists, and pre-populate info based on that.
-    async edit(request: Request, response: Response, next: NextFunction) {
+    async new(request: Request, response: Response, next: NextFunction) {
         return response.render('edit');
     }
 
-    // Redirect to the newly saved entry
+    async edit(request: Request, response: Response, next: NextFunction) {
+        const id = request.params.id;
+        let opts = {};
+        const entry = await this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id = :id', { id: id })
+            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndSelect('range.impression', 'impression')
+            .getOne();
+
+        let impressionOpts = {};
+        const range = entry.dateRanges[0];
+        if (range && range.impression) {
+            impressionOpts = {
+                positivity: range.impression.positivity,
+                negativity: range.impression.negativity,
+            };
+        }
+        opts = {
+            writeDate: this.dateToSlug(new Date()),
+            subjectDate: this.dateToSlug(entry.subjectDate),
+            content: entry.content,
+            contentType: entry.contentType,
+            lockedSubjectDate: true,
+            ...impressionOpts,
+        };
+        return response.render('edit', opts);
+    }
+
     async create(request: Request, response: Response, next: NextFunction) {
         const body = request.body;
         const entry = new Entry();
@@ -113,6 +140,34 @@ export class EntryController {
 
         range.impression = impression;
         impression.dateRange = range;
+
+        await this.impressionRepo.save(impression);
+
+        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+    }
+
+    async update(request: Request, response: Response, next: NextFunction) {
+        const id = request.params.id;
+        const body = request.body;
+        const entry = await this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id = :id', { id: id })
+            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndSelect('range.impression', 'impression')
+            .getOne();
+
+        const updatedDate = this.parseDateOrDefault(body.writeDate);
+
+        entry.content = body.content;
+        // TODO: check if it's more idiomatic to have an "enum constructor" here.
+        entry.contentType = body.contentType;
+        entry.writeDate = updatedDate;
+        await this.entryRepo.save(entry);
+
+        const impression = entry.dateRanges[0].impression;
+        impression.positivity = parseFloat(body.positivity);
+        impression.negativity = parseFloat(body.negativity);
+        impression.written = updatedDate;
 
         await this.impressionRepo.save(impression);
 
