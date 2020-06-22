@@ -1,12 +1,15 @@
-import { getRepository, Like, DefaultNamingStrategy } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
 import { Impression } from '../entity/Impression';
+import { DateRange } from '../entity/DateRange';
 import { ContentType } from '../enums';
 import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
 
 export class EntryController {
-    private repo = getRepository(Entry);
+    private entryRepo = getRepository(Entry);
+    private impressionRepo = getRepository(Impression);
+    private dateRangeRepo = getRepository(DateRange);
 
     // Totally arbitrary
     private MIN_YEAR = '1000';
@@ -22,7 +25,7 @@ export class EntryController {
         const start = dateToSqliteTimestamp(new Date((request.query.start as string) || this.MIN_YEAR));
         const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
 
-        let query = this.repo
+        let query = this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
             .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
@@ -48,7 +51,9 @@ export class EntryController {
                 // TODO: add the title to the formatting somewhere along here
                 content: this.formatContent(entry.content, entry.contentType),
                 subjectDate: this.formatLongDate(entry.subjectDate),
-                link: this.formatLinkDate(entry.subjectDate),
+                link: this.formatLongDate(entry.subjectDate),
+                editLink: this.formatEditLink(entry.id),
+                deleteLink: this.formatDeleteLink(entry.id),
                 writeDate: this.formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges.map((range) => {
                     return {
@@ -64,6 +69,150 @@ export class EntryController {
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             entries: formattedEntries,
         });
+    }
+
+    async new(request: Request, response: Response, next: NextFunction) {
+        return response.render('edit');
+    }
+
+    async edit(request: Request, response: Response, next: NextFunction) {
+        const id = request.params.id;
+        let opts = {};
+        const entry = await this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id = :id', { id: id })
+            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndSelect('range.impression', 'impression')
+            .getOne();
+
+        let impressionOpts = {};
+        const range = entry.dateRanges[0];
+        if (range && range.impression) {
+            impressionOpts = {
+                positivity: range.impression.positivity,
+                negativity: range.impression.negativity,
+            };
+        }
+        opts = {
+            writeDate: this.dateToSlug(new Date()),
+            subjectDate: this.dateToSlug(entry.subjectDate),
+            content: entry.content,
+            contentType: entry.contentType,
+            lockedSubjectDate: true,
+            ...impressionOpts,
+        };
+        return response.render('edit', opts);
+    }
+
+    async create(request: Request, response: Response, next: NextFunction) {
+        const body = request.body;
+        const entry = new Entry();
+        entry.content = body.content;
+        // TODO: check if it's more idiomatic to have an "enum constructor" here.
+        entry.contentType = body.contentType;
+        entry.subjectDate = this.parseDateOrDefault(body.subjectDate);
+        entry.writeDate = this.parseDateOrDefault(body.writeDate);
+        await this.entryRepo.save(entry);
+
+        let range;
+        const ranges = await this.dateRangeRepo.find({
+            where: {
+                start: dateToSqliteTimestamp(entry.subjectDate),
+                end: dateToSqliteTimestamp(entry.subjectDate),
+            },
+        });
+
+        if (ranges.length === 0) {
+            range = new DateRange();
+            range.start = entry.subjectDate;
+            range.end = entry.subjectDate;
+        } else {
+            range = ranges[0];
+        }
+
+        range.entries = [entry];
+        entry.dateRanges = [range];
+
+        await this.dateRangeRepo.save(range);
+
+        const impression = new Impression();
+        impression.positivity = parseFloat(body.positivity);
+        impression.negativity = parseFloat(body.negativity);
+        impression.written = entry.writeDate;
+
+        range.impression = impression;
+        impression.dateRange = range;
+
+        await this.impressionRepo.save(impression);
+
+        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+    }
+
+    async update(request: Request, response: Response, next: NextFunction) {
+        const id = request.params.id;
+        const body = request.body;
+        const entry = await this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id = :id', { id: id })
+            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndSelect('range.impression', 'impression')
+            .getOne();
+
+        const updatedDate = this.parseDateOrDefault(body.writeDate);
+
+        entry.content = body.content;
+        entry.contentType = body.contentType;
+        entry.writeDate = updatedDate;
+        await this.entryRepo.save(entry);
+
+        const impression = entry.dateRanges[0].impression;
+        impression.positivity = parseFloat(body.positivity);
+        impression.negativity = parseFloat(body.negativity);
+        impression.written = updatedDate;
+
+        await this.impressionRepo.save(impression);
+
+        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+    }
+
+    async delete(request: Request, response: Response, next: NextFunction) {
+        const id = request.params.id;
+        const entry = await this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id = :id', { id: id })
+            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndSelect('range.entries', 'entries')
+            .leftJoinAndSelect('range.impression', 'impression')
+            .getOne();
+
+        const range = entry.dateRanges[0];
+        if (range && range.entries && range.entries.length == 1) {
+            if (range.impression) {
+                await this.impressionRepo.save(range.impression);
+                await this.impressionRepo
+                    .createQueryBuilder()
+                    .delete()
+                    .from(Impression)
+                    .where('id = :id', { id: range.impression.id })
+                    .execute();
+            }
+            await this.dateRangeRepo
+                .createQueryBuilder()
+                .delete()
+                .from(DateRange)
+                .where('id = :id', { id: range.id })
+                .execute();
+        }
+        await this.entryRepo.createQueryBuilder().delete().from(Entry).where('id = :id', { id: id }).execute();
+        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+    }
+
+    private parseDateOrDefault(dateSlug: string): Date {
+        if (dateSlug) {
+            return new Date(dateSlug);
+        } else {
+            return new Date(this.dateToSlug(new Date()));
+        }
     }
 
     private formatParentRange(start: Date, end: Date, impression: Impression): string {
@@ -120,6 +269,14 @@ export class EntryController {
 
     private formatLinkDate(date: Date): string {
         return `/entries/on/${this.dateToSlug(date)}`;
+    }
+
+    private formatEditLink(id: number): string {
+        return `/entries/edit/${id}`;
+    }
+
+    private formatDeleteLink(id: number): string {
+        return `/entries/delete/${id}`;
     }
 
     private dateToSlug(date: Date): string {
