@@ -17,11 +17,4 @@ export class Impression {
 
     @Column()
     negativity: number;
-
-    total: number;
-
-    @AfterLoad()
-    setTotal() {
-        this.total = this.positivity + this.negativity;
-    }
 }

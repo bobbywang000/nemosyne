@@ -40,6 +40,14 @@ export const Routes = [
         controller: EntryController,
         action: 'update',
     },
+    // TODO: this is pretty ugly and not standard. Figure out how to add a delete using the proper
+    // HTTP verb here.
+    {
+        method: 'get',
+        route: '/entries/delete/:id',
+        controller: EntryController,
+        action: 'delete',
+    },
     {
         method: 'get',
         route: '/dates',

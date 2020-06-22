@@ -53,7 +53,7 @@ export class EntryController {
                 subjectDate: this.formatLongDate(entry.subjectDate),
                 link: this.formatLongDate(entry.subjectDate),
                 editLink: this.formatEditLink(entry.id),
-
+                deleteLink: this.formatDeleteLink(entry.id),
                 writeDate: this.formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges.map((range) => {
                     return {
@@ -175,6 +175,38 @@ export class EntryController {
         return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
     }
 
+    async delete(request: Request, response: Response, next: NextFunction) {
+        const id = request.params.id;
+        const entry = await this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id = :id', { id: id })
+            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndSelect('range.entries', 'entries')
+            .leftJoinAndSelect('range.impression', 'impression')
+            .getOne();
+
+        const range = entry.dateRanges[0];
+        if (range && range.entries && range.entries.length == 1) {
+            if (range.impression) {
+                await this.impressionRepo.save(range.impression);
+                await this.impressionRepo
+                    .createQueryBuilder()
+                    .delete()
+                    .from(Impression)
+                    .where('id = :id', { id: range.impression.id })
+                    .execute();
+            }
+            await this.dateRangeRepo
+                .createQueryBuilder()
+                .delete()
+                .from(DateRange)
+                .where('id = :id', { id: range.id })
+                .execute();
+        }
+        await this.entryRepo.createQueryBuilder().delete().from(Entry).where('id = :id', { id: id }).execute();
+        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+    }
+
     private parseDateOrDefault(dateSlug: string): Date {
         if (dateSlug) {
             return new Date(dateSlug);
@@ -241,6 +273,10 @@ export class EntryController {
 
     private formatEditLink(id: number): string {
         return `/entries/edit/${id}`;
+    }
+
+    private formatDeleteLink(id: number): string {
+        return `/entries/delete/${id}`;
     }
 
     private dateToSlug(date: Date): string {

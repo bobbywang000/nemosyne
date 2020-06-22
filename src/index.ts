@@ -10,6 +10,9 @@ const SRC_ROOT = 'src';
 
 createConnection()
     .then(async (connection) => {
+        // TODO: this is a dirty shameful hack to get around deleting items. I should fix this ASAP.
+        await connection.query('PRAGMA foreign_keys=OFF');
+
         // create express app
         const app = express();
         app.use(bodyParser.json());
