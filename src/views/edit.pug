@@ -15,13 +15,13 @@ html
 
     label Content Type
     br
-    input(type="radio" id="contentType" name="contentType" value="markdown" checked)
-    label(for="html") markdown
+    input(type="radio" id="contentType" name="contentType" value="markdown" checked=contentType=="markdown")
+    label(for="markdown") markdown
     br
-    input(type="radio" id="contentType" name="contentType" value="html")
+    input(type="radio" id="contentType" name="contentType" value="html" checked=contentType=="html")
     label(for="html") html
     br
-    input(type="radio" id="contentType" name="contentType" value="plaintext")
+    input(type="radio" id="contentType" name="contentType" value="plaintext" checked=contentType=="plaintext")
     label(for="plaintext") plaintext
     br
 

@@ -74,7 +74,7 @@ export class EntryController {
     }
 
     async new(request: Request, response: Response, next: NextFunction) {
-        return response.render('edit');
+        return response.render('edit', { contentType: ContentType.MARKDOWN });
     }
 
     async edit(request: Request, response: Response, next: NextFunction) {
