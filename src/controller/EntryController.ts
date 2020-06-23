@@ -122,6 +122,7 @@ export class EntryController {
                 start: dateToSqliteTimestamp(entry.subjectDate),
                 end: dateToSqliteTimestamp(entry.subjectDate),
             },
+            relations: ['entries', 'impression'],
         });
 
         if (ranges.length === 0) {
@@ -132,12 +133,15 @@ export class EntryController {
             range = ranges[0];
         }
 
-        range.entries = [entry];
-        entry.dateRanges = [range];
+        range.entries = range.entries || [];
+        range.entries.push(entry);
+
+        entry.dateRanges = entry.dateRanges || [];
+        entry.dateRanges.push(range);
 
         await this.dateRangeRepo.save(range);
 
-        const impression = new Impression();
+        const impression = range.impression || new Impression();
         impression.positivity = parseFloat(body.positivity);
         impression.negativity = parseFloat(body.negativity);
         impression.written = entry.writeDate;
