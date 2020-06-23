@@ -210,7 +210,7 @@ export class EntryController {
                 .execute();
         }
         await this.entryRepo.createQueryBuilder().delete().from(Entry).where('id = :id', { id: id }).execute();
-        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+        return response.redirect('back');
     }
 
     private parseDateOrDefault(dateSlug: string): Date {
