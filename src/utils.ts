@@ -15,3 +15,15 @@ export const dateToSqliteTimestamp = (date: Date): string => {
 export const arrayify = (input: any[] | any): any[] => {
     return Array.isArray(input) ? input : [input];
 };
+
+// Totally arbitrary
+const MIN_YEAR = '1000';
+const MAX_YEAR = '3000';
+
+export const startDateOrDefault = (start: string): string => {
+    return dateToSqliteTimestamp(new Date(start || MIN_YEAR));
+};
+
+export const endDateOrDefault = (end: string): string => {
+    return dateToSqliteTimestamp(new Date(end || MAX_YEAR));
+};

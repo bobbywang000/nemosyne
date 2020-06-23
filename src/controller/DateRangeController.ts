@@ -1,18 +1,14 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
-import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
+import { getOffsetDate, arrayify, startDateOrDefault, endDateOrDefault } from '../utils';
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
 
-    // Totally arbitrary
-    private MIN_YEAR = '1000';
-    private MAX_YEAR = '3000';
-
     async find(request: Request, response: Response, next: NextFunction) {
-        const start = dateToSqliteTimestamp(new Date((request.query.start as string) || this.MIN_YEAR));
-        const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
+        const start = startDateOrDefault(request.query.start as string);
+        const end = endDateOrDefault(request.query.end as string);
         const tags = request.query.tags as string[];
 
         const ranges = await this.baseQuery(start, end, tags).andWhere('range.start != range.end').getMany();
