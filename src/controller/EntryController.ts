@@ -5,11 +5,13 @@ import { Impression } from '../entity/Impression';
 import { DateRange } from '../entity/DateRange';
 import { ContentType } from '../enums';
 import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
+import * as MarkdownIt from 'markdown-it';
 
 export class EntryController {
     private entryRepo = getRepository(Entry);
     private impressionRepo = getRepository(Impression);
     private dateRangeRepo = getRepository(DateRange);
+    private md = new MarkdownIt();
 
     // Totally arbitrary
     private MIN_YEAR = '1000';
@@ -72,7 +74,7 @@ export class EntryController {
     }
 
     async new(request: Request, response: Response, next: NextFunction) {
-        return response.render('edit');
+        return response.render('edit', { contentType: ContentType.MARKDOWN });
     }
 
     async edit(request: Request, response: Response, next: NextFunction) {
@@ -243,8 +245,10 @@ export class EntryController {
         switch (contentType) {
             case ContentType.HTML:
                 return content;
-            default:
-                return `<p>Content type ${contentType} not currently supported. Raw content: <code>${content}</code>`;
+            case ContentType.MARKDOWN:
+                return this.md.render(content);
+            case ContentType.PLAINTEXT:
+                return `<code>${content}</code>`;
         }
     }
 
