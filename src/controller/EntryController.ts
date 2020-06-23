@@ -247,8 +247,8 @@ export class EntryController {
                 return content;
             case ContentType.MARKDOWN:
                 return this.md.render(content);
-            default:
-                return `<p>Content type ${contentType} not currently supported. Raw content: <code>${content}</code>`;
+            case ContentType.PLAINTEXT:
+                return `<code>${content}</code>`;
         }
     }
 
