@@ -61,6 +61,20 @@ export const Routes = [
         action: 'find',
     },
     {
+        method: 'post',
+        route: '/tags/new',
+        controller: TagController,
+        action: 'create',
+    },
+    // TODO: this is pretty ugly and not standard. Figure out how to add a delete using the proper
+    // HTTP verb here.
+    {
+        method: 'get',
+        route: '/tags/delete/:id',
+        controller: TagController,
+        action: 'delete',
+    },
+    {
         method: 'get',
         route: '/impressions',
         controller: ImpressionController,

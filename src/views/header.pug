@@ -2,12 +2,15 @@ a(href="/entries/new") New Entry
 form
   label(for="start") Start
   input(type="text" id="start" name="start" value=start)
-  br
   label(for="end") End
   input(type="text" id="end" name="end" value=end)
   br
   label(for="content") Search
   input(type="text" id="content" name="content" value=content)
+  label(for="tags") Tags
+  select(name="tags" id="tags"  size="2" multiple)
+    each tagName in tagNames
+      option(value=tagName selected=(tags && tags.includes(tagName))) #{tagName}
   br
   label(for="positivity-above") Pos Above
   input(type="number" id="positivity-above" name="positivityAbove" min="0" step="any" value=positivityAbove)

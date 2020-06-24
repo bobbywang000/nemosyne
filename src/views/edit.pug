@@ -39,4 +39,10 @@ html
     input(type="number" id="negativity" name="negativity" max="0" step="any" value=negativity required)
     br
 
+    label(for="tags") Tags
+    select(name="tags" id="tags"  size="2" multiple)
+      each tagName in tagNames
+        option(value=tagName selected=(tags && tags.includes(tagName))) #{tagName}
+    br
+
     button(type="submit") Save
