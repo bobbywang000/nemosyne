@@ -56,6 +56,12 @@ export const Routes = [
     },
     {
         method: 'get',
+        route: '/dates/list',
+        controller: DateRangeController,
+        action: 'list',
+    },
+    {
+        method: 'get',
         route: '/tags',
         controller: TagController,
         action: 'find',

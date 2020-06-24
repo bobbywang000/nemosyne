@@ -1,0 +1,18 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    style
+      include css/base.css
+      include css/entry.css
+  body
+
+  include header.pug
+
+  each range in ranges
+    p
+      a(href=range.entryLink) #{range.name}
+      | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+      a(href=range.editLink) Edit
+      | &nbsp;
+      a(href=range.deleteLink) Delete

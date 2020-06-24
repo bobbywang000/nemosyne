@@ -14,6 +14,9 @@ import {
     getImpressionOpts,
     IMPRESSION_QUERY,
     unique,
+    formatRange,
+    formatShortDate,
+    dateToSlug,
 } from '../utils';
 import * as MarkdownIt from 'markdown-it';
 
@@ -75,12 +78,12 @@ export class EntryController {
                 link: this.formatLinkDate(entry.subjectDate),
                 editLink: this.formatEditLink(entry.id),
                 deleteLink: this.formatDeleteLink(entry.id),
-                writeDate: this.formatShortDate(entry.writeDate),
+                writeDate: formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges
                     .sort((range1, range2) => range1.length() - range2.length())
                     .map((range) => {
                         return {
-                            name: this.formatParentRange(range.start, range.end, range.impression),
+                            name: formatRange(range.start, range.end, range.impression),
                             linkParams: this.formatRangeLinkParams(range.start, range.end),
                             start: range.start,
                             end: range.end,
@@ -99,7 +102,7 @@ export class EntryController {
                 )
                 .map((range) => {
                     return {
-                        name: `${range.title}: ${this.formatParentRange(range.start, range.end, range.impression)}`,
+                        name: `${range.title}: ${formatRange(range.start, range.end, range.impression)}`,
                         isRange: true,
                         epochTime: range.start.getTime(),
                     };
@@ -150,8 +153,8 @@ export class EntryController {
             };
         }
         opts = {
-            writeDate: this.dateToSlug(new Date()),
-            subjectDate: this.dateToSlug(entry.subjectDate),
+            writeDate: dateToSlug(new Date()),
+            subjectDate: dateToSlug(entry.subjectDate),
             content: entry.content,
             contentType: entry.contentType,
             lockedSubjectDate: true,
@@ -210,7 +213,7 @@ export class EntryController {
 
         await this.dateRangeRepo.save(range);
 
-        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+        return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
     async update(request: Request, response: Response, next: NextFunction) {
@@ -259,7 +262,7 @@ export class EntryController {
 
         await this.dateRangeRepo.save(range);
 
-        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+        return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
     async delete(request: Request, response: Response, next: NextFunction) {
@@ -296,23 +299,7 @@ export class EntryController {
         if (dateSlug) {
             return new Date(dateSlug);
         } else {
-            return new Date(this.dateToSlug(new Date()));
-        }
-    }
-
-    private formatParentRange(start: Date, end: Date, impression: Impression): string {
-        let formattedDate;
-        if (start.getTime() === end.getTime()) {
-            formattedDate = this.formatShortDate(start);
-        } else {
-            // TODO: just give the title of the range here
-            formattedDate = `${this.formatShortDate(start)} - ${this.formatShortDate(end)}`;
-        }
-
-        if (impression) {
-            return `${formattedDate} (+${impression.positivity}/${impression.negativity})`;
-        } else {
-            return formattedDate;
+            return new Date(dateToSlug(new Date()));
         }
     }
 
@@ -320,7 +307,7 @@ export class EntryController {
         if (start.getTime() === end.getTime()) {
             return null;
         } else {
-            return `?start=${this.dateToSlug(start)}&end=${this.dateToSlug(end)}`;
+            return `?start=${dateToSlug(start)}&end=${dateToSlug(end)}`;
         }
     }
 
@@ -347,15 +334,8 @@ export class EntryController {
         return date.toLocaleDateString('en-US', options);
     }
 
-    private formatShortDate(date: Date): string {
-        const options = {
-            timeZone: 'Etc/UTC',
-        };
-        return date.toLocaleDateString('en-US', options);
-    }
-
     private formatLinkDate(date: Date): string {
-        return `/entries/on/${this.dateToSlug(date)}`;
+        return `/entries/on/${dateToSlug(date)}`;
     }
 
     private formatEditLink(id: number): string {
@@ -364,9 +344,5 @@ export class EntryController {
 
     private formatDeleteLink(id: number): string {
         return `/entries/delete/${id}`;
-    }
-
-    private dateToSlug(date: Date): string {
-        return date.toISOString().split('T')[0];
     }
 }

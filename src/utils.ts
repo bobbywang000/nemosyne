@@ -1,3 +1,5 @@
+import { Impression } from './entity/Impression';
+
 export const getOffsetDate = (date: Date, offsetDays: number): Date => {
     const offsetDate = new Date(date);
     offsetDate.setDate(offsetDate.getDate() + offsetDays);
@@ -63,4 +65,31 @@ export const unique = (inputArr: any[]): any[] => {
     return inputArr.filter((value, index, array) => {
         return array.findIndex((other) => value.name == other.name) === index;
     });
+};
+
+export const formatRange = (start: Date, end: Date, impression: Impression): string => {
+    let formattedDate;
+    if (start.getTime() === end.getTime()) {
+        formattedDate = formatShortDate(start);
+    } else {
+        // TODO: just give the title of the range here
+        formattedDate = `${formatShortDate(start)} - ${formatShortDate(end)}`;
+    }
+
+    if (impression) {
+        return `${formattedDate} (+${impression.positivity}/${impression.negativity})`;
+    } else {
+        return formattedDate;
+    }
+};
+
+export const formatShortDate = (date: Date): string => {
+    const options = {
+        timeZone: 'Etc/UTC',
+    };
+    return date.toLocaleDateString('en-US', options);
+};
+
+export const dateToSlug = (date: Date): string => {
+    return date.toISOString().split('T')[0];
 };
