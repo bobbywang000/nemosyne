@@ -28,24 +28,33 @@ export class DateRangeController {
 
     // Need to create a new queryBuilder for every query, so abstract this out into a new method
     private baseSqlQuery(start: string, end: string, httpQuery: any) {
-        const sqlQuery = this.repo
+        let sqlQuery = this.repo
             .createQueryBuilder('range')
             .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
             .leftJoinAndSelect('range.impression', 'impression')
             .andWhere(IMPRESSION_QUERY, getImpressionOpts(httpQuery));
+
+        const content = httpQuery.content;
+        if (content) {
+            sqlQuery = sqlQuery
+                .leftJoinAndSelect('range.entries', 'entry')
+                .andWhere('entry.content LIKE :content', { content: `%${content}%` });
+        }
 
         // Relatively few ranges are tagged, and not all those days have titles, so we should show
         // all days when tags are given. Otherwise, every single range has a tag, which we obvs
         // shouldn't show.
         const tags = httpQuery.tags;
         if (tags) {
-            return sqlQuery.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
+            sqlQuery = sqlQuery.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
                 // TODO: figure out why TypeScript isn't catching that tags isn't a string and failing earlier
                 tags: arrayify(tags),
             });
         } else {
-            return sqlQuery.andWhere('range.title IS NOT NULL');
+            sqlQuery = sqlQuery.andWhere('range.title IS NOT NULL');
         }
+
+        return sqlQuery;
     }
 
     private existingJS(ranges: DateRange[], moments: DateRange[]): string {
