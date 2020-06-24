@@ -24,7 +24,8 @@ export const IMPRESSION_QUERY =
     ' AND (impression.positivity + impression.negativity) >= :totalAbove' +
     ' AND (impression.positivity + impression.negativity) <= :totalBelow';
 
-// Totally arbitrary
+// Totally arbitrary - would use infinity (or negative infinity) for all the extreme values,
+// but Typeorm doesn't like infinity. So we just choose arbitrarily large numbers.
 const MIN_YEAR = '1000';
 const MAX_YEAR = '3000';
 const IMPRESSION_FILTER_DEFAULTS = {
