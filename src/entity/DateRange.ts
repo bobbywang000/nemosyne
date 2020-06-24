@@ -36,4 +36,8 @@ export class DateRange {
     tags: Tag[];
 
     entries: Entry[];
+
+    length(): number {
+        return this.end.getTime() - this.start.getTime();
+    }
 }

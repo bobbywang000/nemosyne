@@ -74,12 +74,14 @@ export class EntryController {
                 editLink: this.formatEditLink(entry.id),
                 deleteLink: this.formatDeleteLink(entry.id),
                 writeDate: this.formatShortDate(entry.writeDate),
-                parentRanges: entry.dateRanges.map((range) => {
-                    return {
-                        name: this.formatParentRange(range.start, range.end, range.impression),
-                        linkParams: this.formatRangeLinkParams(range.start, range.end),
-                    };
-                }),
+                parentRanges: entry.dateRanges
+                    .sort((range1, range2) => range1.length() - range2.length())
+                    .map((range) => {
+                        return {
+                            name: this.formatParentRange(range.start, range.end, range.impression),
+                            linkParams: this.formatRangeLinkParams(range.start, range.end),
+                        };
+                    }),
             };
         });
 
