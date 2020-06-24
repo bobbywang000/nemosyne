@@ -148,7 +148,7 @@ export class EntryController {
                 start: dateToSqliteTimestamp(entry.subjectDate),
                 end: dateToSqliteTimestamp(entry.subjectDate),
             },
-            relations: ['entries', 'impression'],
+            relations: ['impression'],
         });
 
         if (ranges.length === 0) {
@@ -159,9 +159,6 @@ export class EntryController {
             range = ranges[0];
         }
 
-        range.entries = range.entries || [];
-        range.entries.push(entry);
-
         const tags = await this.tagRepo
             .createQueryBuilder('tag')
             .where('tag.name IN (:...tags)', {
@@ -170,11 +167,6 @@ export class EntryController {
             .getMany();
 
         range.tags = tags;
-
-        entry.dateRanges = entry.dateRanges || [];
-        entry.dateRanges.push(range);
-
-        await this.dateRangeRepo.save(range);
 
         const impression = range.impression || new Impression();
         impression.positivity = parseFloat(body.positivity);
@@ -228,7 +220,6 @@ export class EntryController {
             })
             .getMany();
 
-        // Do we have to do the reverse too?
         range.tags = tags;
 
         range.impression = impression;
@@ -243,38 +234,31 @@ export class EntryController {
 
     async delete(request: Request, response: Response, next: NextFunction) {
         const id = request.params.id;
-        const entry = await this.entryRepo
-            .createQueryBuilder('entry')
-            .where('entry.id = :id', { id: id })
-            .leftJoinAndMapMany(
-                'entry.dateRanges',
-                DateRange,
-                'range',
-                'entry.subjectDate == range.start AND entry.subjectDate == range.end',
-            )
-            .leftJoinAndSelect('range.entries', 'entries')
-            .leftJoinAndSelect('range.impression', 'impression')
-            .getOne();
+        const entry = await this.entryRepo.findOne(id);
+        const subjectDate = dateToSqliteTimestamp(entry.subjectDate);
 
-        const range = entry.dateRanges[0];
-        if (range && range.entries && range.entries.length == 1) {
+        const entriesOnDate = await this.entryRepo.find({
+            where: {
+                subjectDate: subjectDate,
+            },
+        });
+
+        if (entriesOnDate.length == 1) {
+            const range = await this.dateRangeRepo.findOne({
+                where: {
+                    start: subjectDate,
+                    end: subjectDate,
+                },
+                relations: ['impression'],
+            });
+
             if (range.impression) {
-                await this.impressionRepo.save(range.impression);
-                await this.impressionRepo
-                    .createQueryBuilder()
-                    .delete()
-                    .from(Impression)
-                    .where('id = :id', { id: range.impression.id })
-                    .execute();
+                await this.impressionRepo.delete(range.impression);
             }
-            await this.dateRangeRepo
-                .createQueryBuilder()
-                .delete()
-                .from(DateRange)
-                .where('id = :id', { id: range.id })
-                .execute();
+            await this.dateRangeRepo.delete(range);
         }
-        await this.entryRepo.createQueryBuilder().delete().from(Entry).where('id = :id', { id: id }).execute();
+
+        await this.entryRepo.delete(entry);
         return response.redirect('back');
     }
 
