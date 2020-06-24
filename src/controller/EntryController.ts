@@ -84,7 +84,10 @@ export class EntryController {
     }
 
     async new(request: Request, response: Response, next: NextFunction) {
-        return response.render('edit', { contentType: ContentType.MARKDOWN });
+        return response.render('edit', {
+            contentType: ContentType.MARKDOWN,
+            tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
+        });
     }
 
     async edit(request: Request, response: Response, next: NextFunction) {
@@ -95,6 +98,7 @@ export class EntryController {
             .where('entry.id = :id', { id: id })
             .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
             .leftJoinAndSelect('range.impression', 'impression')
+            .leftJoinAndSelect('range.tags', 'tags')
             .getOne();
 
         let impressionOpts = {};
@@ -111,6 +115,8 @@ export class EntryController {
             content: entry.content,
             contentType: entry.contentType,
             lockedSubjectDate: true,
+            tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
+            tags: arrayify(range.tags.map((tag) => tag.name)),
             ...impressionOpts,
         };
         return response.render('edit', opts);
@@ -146,6 +152,15 @@ export class EntryController {
         range.entries = range.entries || [];
         range.entries.push(entry);
 
+        const tags = await this.tagRepo
+            .createQueryBuilder('tag')
+            .where('tag.name IN (:...tags)', {
+                tags: arrayify(body.tags),
+            })
+            .getMany();
+
+        range.tags = tags;
+
         entry.dateRanges = entry.dateRanges || [];
         entry.dateRanges.push(range);
 
@@ -161,12 +176,17 @@ export class EntryController {
 
         await this.impressionRepo.save(impression);
 
+        await this.dateRangeRepo.save(range);
+
+        console.log(range);
+
         return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
     }
 
     async update(request: Request, response: Response, next: NextFunction) {
         const id = request.params.id;
         const body = request.body;
+
         const entry = await this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.id = :id', { id: id })
@@ -188,10 +208,24 @@ export class EntryController {
         impression.negativity = parseFloat(body.negativity);
         impression.written = updatedDate;
 
+        const tags = await this.tagRepo
+            .createQueryBuilder('tag')
+            .where('tag.name IN (:...tags)', {
+                tags: arrayify(body.tags),
+            })
+            .getMany();
+
+        // Do we have to do the reverse too?
+        range.tags = tags;
+
         range.impression = impression;
         impression.dateRange = range;
 
         await this.impressionRepo.save(impression);
+
+        await this.dateRangeRepo.save(range);
+
+        console.log(range);
 
         return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
     }
