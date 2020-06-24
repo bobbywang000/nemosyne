@@ -36,7 +36,12 @@ export class EntryController {
         let query = this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
-            .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
+            .leftJoinAndMapMany(
+                'entry.dateRanges',
+                DateRange,
+                'dateRanges',
+                'entry.subjectDate >= dateRanges.start AND entry.subjectDate <= dateRanges.end',
+            )
             .leftJoinAndSelect('dateRanges.impression', 'impression')
             .andWhere(IMPRESSION_QUERY, getImpressionOpts(request.query))
             .orderBy('entry.subjectDate');
@@ -96,7 +101,12 @@ export class EntryController {
         const entry = await this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.id = :id', { id: id })
-            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndMapMany(
+                'entry.dateRanges',
+                DateRange,
+                'range',
+                'entry.subjectDate == range.start AND entry.subjectDate == range.end',
+            )
             .leftJoinAndSelect('range.impression', 'impression')
             .leftJoinAndSelect('range.tags', 'tags')
             .getOne();
@@ -178,8 +188,6 @@ export class EntryController {
 
         await this.dateRangeRepo.save(range);
 
-        console.log(range);
-
         return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
     }
 
@@ -190,7 +198,12 @@ export class EntryController {
         const entry = await this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.id = :id', { id: id })
-            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndMapMany(
+                'entry.dateRanges',
+                DateRange,
+                'range',
+                'entry.subjectDate == range.start AND entry.subjectDate == range.end',
+            )
             .leftJoinAndSelect('range.impression', 'impression')
             .getOne();
 
@@ -225,8 +238,6 @@ export class EntryController {
 
         await this.dateRangeRepo.save(range);
 
-        console.log(range);
-
         return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
     }
 
@@ -235,7 +246,12 @@ export class EntryController {
         const entry = await this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.id = :id', { id: id })
-            .leftJoinAndSelect('entry.dateRanges', 'range', 'range.start == range.end')
+            .leftJoinAndMapMany(
+                'entry.dateRanges',
+                DateRange,
+                'range',
+                'entry.subjectDate == range.start AND entry.subjectDate == range.end',
+            )
             .leftJoinAndSelect('range.entries', 'entries')
             .leftJoinAndSelect('range.impression', 'impression')
             .getOne();
