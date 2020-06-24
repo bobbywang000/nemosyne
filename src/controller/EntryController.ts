@@ -260,12 +260,12 @@ export class EntryController {
             });
 
             if (range.impression) {
-                await this.impressionRepo.delete(range.impression);
+                await this.impressionRepo.delete(range.impression.id);
             }
-            await this.dateRangeRepo.delete(range);
+            await this.dateRangeRepo.delete(range.id);
         }
 
-        await this.entryRepo.delete(entry);
+        await this.entryRepo.delete(entry.id);
         return response.redirect('back');
     }
 
