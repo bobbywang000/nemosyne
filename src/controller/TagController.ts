@@ -16,6 +16,7 @@ export class TagController {
                     datesLink: `/dates?tags=${encodeURI(tag.name)}`,
                 };
             }),
+            ...request.query,
         });
     }
 }

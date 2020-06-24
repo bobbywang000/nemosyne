@@ -13,6 +13,7 @@ export class ImpressionController {
 
         return response.render('impression', {
             existingJS: this.existingJS(rangesWithImpressions),
+            ...request.params,
         });
     }
 
@@ -131,7 +132,7 @@ export class ImpressionController {
             this.escapeDateToStringLiteral(range.start),
             range.impression.positivity,
             range.impression.negativity,
-            range.impression.total,
+            range.impression.positivity + range.impression.negativity,
         ]);
     }
 

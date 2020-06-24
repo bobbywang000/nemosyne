@@ -1,28 +1,28 @@
 a(href="/entries/new") New Entry
 form
   label(for="start") Start
-  input(type="text" id="start" name="start")
+  input(type="text" id="start" name="start" value=start)
   br
   label(for="end") End
-  input(type="text" id="end" name="end")
+  input(type="text" id="end" name="end" value=end)
   br
   label(for="content") Search
-  input(type="text" id="content" name="content")
+  input(type="text" id="content" name="content" value=content)
   br
   label(for="positivity-above") Pos Above
-  input(type="number" id="positivity-above" name="positivityAbove" min="0" step="any")
+  input(type="number" id="positivity-above" name="positivityAbove" min="0" step="any" value=positivityAbove)
   label(for="positivity-below") Below
-  input(type="number" id="positivity-below" name="positivityBelow" min="0" step="any")
+  input(type="number" id="positivity-below" name="positivityBelow" min="0" step="any" value=positivityBelow)
   br
   label(for="negativity-above") Neg Above
-  input(type="number" id="negativity-above" name="negativityAbove" max="0" step="any")
+  input(type="number" id="negativity-above" name="negativityAbove" max="0" step="any" value=negativityAbove)
   label(for="negativity-below") Below
-  input(type="number" id="negativity-below" name="negativityBelow" max="0" step="any")
+  input(type="number" id="negativity-below" name="negativityBelow" max="0" step="any" value=negativityBelow)
   br
   label(for="total-above") Tot Above
-  input(type="number" id="total-above" name="totalAbove" step="any")
+  input(type="number" id="total-above" name="totalAbove" step="any" value=totalAbove)
   label(for="total-below") Below
-  input(type="number" id="total-below" name="totalBelow" step="any")
+  input(type="number" id="total-below" name="totalBelow" step="any" value=totalBelow)
   br
   button(type="submit" formaction='/entries') Entries
   button(type="submit" formaction='/dates') Dates

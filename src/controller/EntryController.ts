@@ -75,6 +75,7 @@ export class EntryController {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             entries: formattedEntries,
+            ...request.query,
         });
     }
 
