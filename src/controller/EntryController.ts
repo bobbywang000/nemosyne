@@ -106,7 +106,7 @@ export class EntryController {
                 });
         });
 
-        return response.render('entry', {
+        return response.render('viewEntry', {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             elements: formattedEntries
@@ -119,7 +119,7 @@ export class EntryController {
     }
 
     async new(request: Request, response: Response, next: NextFunction) {
-        return response.render('edit', {
+        return response.render('editEntry', {
             contentType: ContentType.MARKDOWN,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
         });
@@ -159,7 +159,7 @@ export class EntryController {
             tags: arrayify(range.tags.map((tag) => tag.name)),
             ...impressionOpts,
         };
-        return response.render('edit', opts);
+        return response.render('editEntry', opts);
     }
 
     async create(request: Request, response: Response, next: NextFunction) {

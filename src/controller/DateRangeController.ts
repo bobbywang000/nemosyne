@@ -25,7 +25,7 @@ export class DateRangeController {
         const ranges = await this.baseSqlQuery(start, end, query).andWhere('range.start != range.end').getMany();
         const moments = await this.baseSqlQuery(start, end, query).andWhere('range.start == range.end').getMany();
 
-        return response.render('range', {
+        return response.render('viewRangeGraph', {
             existingJS: this.existingJS(ranges, moments),
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
             ...query,
