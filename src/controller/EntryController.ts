@@ -42,8 +42,13 @@ export class EntryController {
                 'dateRanges',
                 'entry.subjectDate >= dateRanges.start AND entry.subjectDate <= dateRanges.end',
             )
-            .leftJoinAndSelect('dateRanges.impression', 'impression')
-            .andWhere(IMPRESSION_QUERY, getImpressionOpts(request.query))
+            .leftJoinAndMapOne(
+                'dateRanges.impression',
+                Impression,
+                'impression',
+                `impression.id = dateRanges.impressionId AND ${IMPRESSION_QUERY}`,
+                getImpressionOpts(request.query),
+            )
             .orderBy('entry.subjectDate');
 
         const tags = request.query.tags;
