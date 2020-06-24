@@ -4,7 +4,15 @@ import { Entry } from '../entity/Entry';
 import { Impression } from '../entity/Impression';
 import { DateRange } from '../entity/DateRange';
 import { ContentType } from '../enums';
-import { getOffsetDate, dateToSqliteTimestamp, arrayify } from '../utils';
+import {
+    getOffsetDate,
+    dateToSqliteTimestamp,
+    arrayify,
+    startDateOrDefault,
+    endDateOrDefault,
+    getImpressionOpts,
+    IMPRESSION_QUERY,
+} from '../utils';
 import * as MarkdownIt from 'markdown-it';
 
 export class EntryController {
@@ -13,10 +21,6 @@ export class EntryController {
     private dateRangeRepo = getRepository(DateRange);
     private md = new MarkdownIt();
 
-    // Totally arbitrary
-    private MIN_YEAR = '1000';
-    private MAX_YEAR = '3000';
-
     async on(request: Request, response: Response, next: NextFunction) {
         request.query.start = request.params.subjectDate;
         request.query.end = request.params.subjectDate;
@@ -24,14 +28,15 @@ export class EntryController {
     }
 
     async find(request: Request, response: Response, next: NextFunction) {
-        const start = dateToSqliteTimestamp(new Date((request.query.start as string) || this.MIN_YEAR));
-        const end = dateToSqliteTimestamp(new Date((request.query.end as string) || this.MAX_YEAR));
+        const start = startDateOrDefault(request.query.start as string);
+        const end = endDateOrDefault(request.query.end as string);
 
         let query = this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
             .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
             .leftJoinAndSelect('dateRanges.impression', 'impression')
+            .andWhere(IMPRESSION_QUERY, getImpressionOpts(request.query))
             .orderBy('entry.subjectDate');
 
         const tags = request.query.tags;
@@ -70,6 +75,7 @@ export class EntryController {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             entries: formattedEntries,
+            ...request.query,
         });
     }
 
