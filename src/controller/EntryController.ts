@@ -13,6 +13,8 @@ import {
     endDateOrDefault,
     getImpressionOpts,
     IMPRESSION_QUERY,
+    unique,
+    MILLISECONDS_PER_DAY,
 } from '../utils';
 import * as MarkdownIt from 'markdown-it';
 
@@ -70,6 +72,7 @@ export class EntryController {
                 // TODO: add the title to the formatting somewhere along here
                 content: this.formatContent(entry.content, entry.contentType),
                 subjectDate: this.formatLongDate(entry.subjectDate),
+                epochTime: entry.subjectDate.getTime(),
                 link: this.formatLinkDate(entry.subjectDate),
                 editLink: this.formatEditLink(entry.id),
                 deleteLink: this.formatDeleteLink(entry.id),
@@ -80,15 +83,36 @@ export class EntryController {
                         return {
                             name: this.formatParentRange(range.start, range.end, range.impression),
                             linkParams: this.formatRangeLinkParams(range.start, range.end),
+                            start: range.start,
+                            end: range.end,
                         };
                     }),
             };
         });
 
+        const longDateRanges = entries.flatMap((entry) => {
+            return entry.dateRanges
+                .filter(
+                    (range) =>
+                        range.end.getTime() - range.start.getTime() > MILLISECONDS_PER_DAY &&
+                        dateToSqliteTimestamp(range.start) >= start &&
+                        dateToSqliteTimestamp(range.end) <= end,
+                )
+                .map((range) => {
+                    return {
+                        name: `${range.title}: ${this.formatParentRange(range.start, range.end, range.impression)}`,
+                        isRange: true,
+                        epochTime: range.start.getTime(),
+                    };
+                });
+        });
+
         return response.render('entry', {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
-            entries: formattedEntries,
+            elements: formattedEntries
+                .concat(unique(longDateRanges) as any[])
+                .sort((e1, e2) => e1.epochTime - e2.epochTime + (e1['isRange'] ? -1 : 1)),
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
             tags: tags,
             ...request.query,
