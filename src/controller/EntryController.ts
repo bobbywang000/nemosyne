@@ -4,7 +4,15 @@ import { Entry } from '../entity/Entry';
 import { Impression } from '../entity/Impression';
 import { DateRange } from '../entity/DateRange';
 import { ContentType } from '../enums';
-import { getOffsetDate, dateToSqliteTimestamp, arrayify, startDateOrDefault, endDateOrDefault } from '../utils';
+import {
+    getOffsetDate,
+    dateToSqliteTimestamp,
+    arrayify,
+    startDateOrDefault,
+    endDateOrDefault,
+    getImpressionOpts,
+    IMPRESSION_QUERY,
+} from '../utils';
 import * as MarkdownIt from 'markdown-it';
 
 export class EntryController {
@@ -28,6 +36,7 @@ export class EntryController {
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
             .leftJoinAndSelect('entry.dateRanges', 'dateRanges')
             .leftJoinAndSelect('dateRanges.impression', 'impression')
+            .andWhere(IMPRESSION_QUERY, getImpressionOpts(request.query))
             .orderBy('entry.subjectDate');
 
         const tags = request.query.tags;

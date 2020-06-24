@@ -1,7 +1,14 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
-import { getOffsetDate, arrayify, startDateOrDefault, endDateOrDefault } from '../utils';
+import {
+    getOffsetDate,
+    arrayify,
+    startDateOrDefault,
+    endDateOrDefault,
+    getImpressionOpts,
+    IMPRESSION_QUERY,
+} from '../utils';
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
@@ -9,10 +16,10 @@ export class DateRangeController {
     async find(request: Request, response: Response, next: NextFunction) {
         const start = startDateOrDefault(request.query.start as string);
         const end = endDateOrDefault(request.query.end as string);
-        const tags = request.query.tags as string[];
+        const query = request.query;
 
-        const ranges = await this.baseQuery(start, end, tags).andWhere('range.start != range.end').getMany();
-        const moments = await this.baseQuery(start, end, tags).andWhere('range.start == range.end').getMany();
+        const ranges = await this.baseSqlQuery(start, end, query).andWhere('range.start != range.end').getMany();
+        const moments = await this.baseSqlQuery(start, end, query).andWhere('range.start == range.end').getMany();
 
         return response.render('range', {
             existingJS: this.existingJS(ranges, moments),
@@ -20,21 +27,24 @@ export class DateRangeController {
     }
 
     // Need to create a new queryBuilder for every query, so abstract this out into a new method
-    private baseQuery(start: string, end: string, tags: string[]) {
-        const query = this.repo
+    private baseSqlQuery(start: string, end: string, httpQuery: any) {
+        const sqlQuery = this.repo
             .createQueryBuilder('range')
-            .where('range.start >= :start AND range.end <= :end', { start: start, end: end });
+            .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
+            .leftJoinAndSelect('range.impression', 'impression')
+            .andWhere(IMPRESSION_QUERY, getImpressionOpts(httpQuery));
 
         // Relatively few ranges are tagged, and not all those days have titles, so we should show
         // all days when tags are given. Otherwise, every single range has a tag, which we obvs
         // shouldn't show.
+        const tags = httpQuery.tags;
         if (tags) {
-            return query.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
+            return sqlQuery.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
                 // TODO: figure out why TypeScript isn't catching that tags isn't a string and failing earlier
                 tags: arrayify(tags),
             });
         } else {
-            return query.andWhere('range.title IS NOT NULL');
+            return sqlQuery.andWhere('range.title IS NOT NULL');
         }
     }
 
