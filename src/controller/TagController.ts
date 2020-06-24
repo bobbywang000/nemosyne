@@ -17,6 +17,7 @@ export class TagController {
                     deleteLink: `/tags/delete/${tag.id}`,
                 };
             }),
+            tagNames: tags.map((tag) => tag.name),
             ...request.query,
         });
     }

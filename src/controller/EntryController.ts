@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Entry } from '../entity/Entry';
 import { Impression } from '../entity/Impression';
 import { DateRange } from '../entity/DateRange';
+import { Tag } from '../entity/Tag';
 import { ContentType } from '../enums';
 import {
     getOffsetDate,
@@ -19,6 +20,7 @@ export class EntryController {
     private entryRepo = getRepository(Entry);
     private impressionRepo = getRepository(Impression);
     private dateRangeRepo = getRepository(DateRange);
+    private tagRepo = getRepository(Tag);
     private md = new MarkdownIt();
 
     async on(request: Request, response: Response, next: NextFunction) {
@@ -75,6 +77,8 @@ export class EntryController {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             entries: formattedEntries,
+            tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
+            tags: tags,
             ...request.query,
         });
     }

@@ -1,9 +1,11 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
+import { Tag } from '../entity/Tag';
 
 export class ImpressionController {
     private repo = getRepository(DateRange);
+    private tagRepo = getRepository(Tag);
 
     async find(request: Request, response: Response, next: NextFunction) {
         const rangesWithImpressions = await this.repo
@@ -13,7 +15,8 @@ export class ImpressionController {
 
         return response.render('impression', {
             existingJS: this.existingJS(rangesWithImpressions),
-            ...request.params,
+            tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
+            ...request.query,
         });
     }
 

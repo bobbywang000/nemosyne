@@ -1,6 +1,7 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
+import { Tag } from '../entity/Tag';
 import {
     getOffsetDate,
     arrayify,
@@ -12,17 +13,20 @@ import {
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
+    private tagRepo = getRepository(Tag);
 
     async find(request: Request, response: Response, next: NextFunction) {
-        const start = startDateOrDefault(request.query.start as string);
-        const end = endDateOrDefault(request.query.end as string);
         const query = request.query;
+        const start = startDateOrDefault(query.start as string);
+        const end = endDateOrDefault(query.end as string);
 
         const ranges = await this.baseSqlQuery(start, end, query).andWhere('range.start != range.end').getMany();
         const moments = await this.baseSqlQuery(start, end, query).andWhere('range.start == range.end').getMany();
 
         return response.render('range', {
             existingJS: this.existingJS(ranges, moments),
+            tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
+            ...query,
         });
     }
 
