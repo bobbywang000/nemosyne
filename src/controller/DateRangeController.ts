@@ -2,6 +2,7 @@ import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
 import { Entry } from '../entity/Entry';
+import { Impression } from '../entity/Impression';
 import { Tag } from '../entity/Tag';
 import {
     getOffsetDate,
@@ -36,8 +37,13 @@ export class DateRangeController {
         let sqlQuery = this.repo
             .createQueryBuilder('range')
             .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
-            .leftJoinAndSelect('range.impression', 'impression')
-            .andWhere(IMPRESSION_QUERY, getImpressionOpts(httpQuery));
+            .leftJoinAndMapOne(
+                'range.impression',
+                Impression,
+                'impression',
+                `impression.id = range.impressionId AND ${IMPRESSION_QUERY}`,
+                getImpressionOpts(httpQuery),
+            );
         const content = httpQuery.content;
         if (content) {
             sqlQuery = sqlQuery.innerJoin(
