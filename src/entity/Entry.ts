@@ -24,6 +24,5 @@ export class Entry {
     })
     contentType: ContentType;
 
-    @ManyToMany((type) => DateRange, (dateRange) => dateRange.entries)
     dateRanges: DateRange[];
 }

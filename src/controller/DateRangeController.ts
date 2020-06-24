@@ -1,6 +1,7 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
+import { Entry } from '../entity/Entry';
 import { Tag } from '../entity/Tag';
 import {
     getOffsetDate,
@@ -37,12 +38,16 @@ export class DateRangeController {
             .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
             .leftJoinAndSelect('range.impression', 'impression')
             .andWhere(IMPRESSION_QUERY, getImpressionOpts(httpQuery));
-
         const content = httpQuery.content;
         if (content) {
-            sqlQuery = sqlQuery
-                .leftJoinAndSelect('range.entries', 'entry')
-                .andWhere('entry.content LIKE :content', { content: `%${content}%` });
+            sqlQuery = sqlQuery.innerJoin(
+                Entry,
+                'entry',
+                'entry.subjectDate >= range.start AND entry.subjectDate <= range.end AND entry.content LIKE :content',
+                {
+                    content: `%${content}%`,
+                },
+            );
         }
 
         // Relatively few ranges are tagged, and not all those days have titles, so we should show
@@ -50,7 +55,7 @@ export class DateRangeController {
         // shouldn't show.
         const tags = httpQuery.tags;
         if (tags) {
-            sqlQuery = sqlQuery.innerJoinAndSelect('range.tags', 'tag', 'tag.name IN (:...tags)', {
+            sqlQuery = sqlQuery.innerJoin('range.tags', 'tag', 'tag.name IN (:...tags)', {
                 // TODO: figure out why TypeScript isn't catching that tags isn't a string and failing earlier
                 tags: arrayify(tags),
             });

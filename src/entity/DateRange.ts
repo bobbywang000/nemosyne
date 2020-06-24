@@ -31,11 +31,13 @@ export class DateRange {
     })
     events: string[];
 
-    @ManyToMany((type) => Entry, (entry) => entry.dateRanges)
-    @JoinTable()
-    entries: Entry[];
-
     @ManyToMany((type) => Tag, (tag) => tag.dateRanges)
     @JoinTable()
     tags: Tag[];
+
+    entries: Entry[];
+
+    length(): number {
+        return this.end.getTime() - this.start.getTime();
+    }
 }
