@@ -14,23 +14,26 @@ html
     | &nbsp;
     a(href=next) next
 
-  each entry in entries
-    h2
-      a(href=entry.link) #{entry.subjectDate} (written #{entry.writeDate})
-    h4
-      a(href=entry.editLink) Edit
-      | &nbsp;
-      a(href=entry.deleteLink) Delete
-    | Ranges:
+  each element in elements
+    if element.isRange
+      h1 #{element.name}
+    else
+      h2
+        a(href=element.link) #{element.subjectDate} (written #{element.writeDate})
+      h4
+        a(href=element.editLink) Edit
+        | &nbsp;
+        a(href=element.deleteLink) Delete
+      | Ranges:
 
-    ul
-      each range in entry.parentRanges
-        if range.linkParams
-          li #{range.name}
-            | &nbsp;
-            a(href="/entries" + range.linkParams) Entry View
-            | &nbsp;
-            a(href="/dates" + range.linkParams) Range View
-        else
-          li #{range.name}
-    | !{ entry.content }
+      ul
+        each range in element.parentRanges
+          if range.linkParams
+            li #{range.name}
+              | &nbsp;
+              a(href="/entries" + range.linkParams) Entry View
+              | &nbsp;
+              a(href="/dates" + range.linkParams) Range View
+          else
+            li #{range.name}
+      | !{ element.content }
