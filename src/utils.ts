@@ -1,5 +1,3 @@
-export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
-
 export const getOffsetDate = (date: Date, offsetDays: number): Date => {
     const offsetDate = new Date(date);
     offsetDate.setDate(offsetDate.getDate() + offsetDays);

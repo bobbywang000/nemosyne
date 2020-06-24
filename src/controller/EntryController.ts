@@ -14,7 +14,6 @@ import {
     getImpressionOpts,
     IMPRESSION_QUERY,
     unique,
-    MILLISECONDS_PER_DAY,
 } from '../utils';
 import * as MarkdownIt from 'markdown-it';
 
@@ -94,7 +93,7 @@ export class EntryController {
             return entry.dateRanges
                 .filter(
                     (range) =>
-                        range.end.getTime() - range.start.getTime() > MILLISECONDS_PER_DAY &&
+                        range.start.getTime() != range.end.getTime() &&
                         dateToSqliteTimestamp(range.start) >= start &&
                         dateToSqliteTimestamp(range.end) <= end,
                 )
