@@ -18,7 +18,6 @@ export class TagController {
                 };
             }),
             tagNames: tags.map((tag) => tag.name),
-            ...request.query,
         });
     }
 

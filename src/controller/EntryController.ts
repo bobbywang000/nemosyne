@@ -179,12 +179,17 @@ export class EntryController {
         entry.content = body.content;
         entry.contentType = body.contentType;
         entry.writeDate = updatedDate;
+
         await this.entryRepo.save(entry);
 
-        const impression = entry.dateRanges[0].impression;
+        const range = entry.dateRanges[0];
+        const impression = range.impression || new Impression();
         impression.positivity = parseFloat(body.positivity);
         impression.negativity = parseFloat(body.negativity);
         impression.written = updatedDate;
+
+        range.impression = impression;
+        impression.dateRange = range;
 
         await this.impressionRepo.save(impression);
 

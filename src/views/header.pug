@@ -9,8 +9,9 @@ form
   input(type="text" id="content" name="content" value=content)
   label(for="tags") Tags
   select(name="tags" id="tags"  size="2" multiple)
-    each tagName in tagNames
-      option(value=tagName selected=(tags && tags.includes(tagName))) #{tagName}
+    if tagNames
+      each tagName in tagNames
+        option(value=tagName selected=(tags && tags.includes(tagName))) #{tagName}
   br
   label(for="positivity-above") Pos Above
   input(type="number" id="positivity-above" name="positivityAbove" min="0" step="any" value=positivityAbove)
