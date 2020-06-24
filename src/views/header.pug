@@ -9,6 +9,21 @@ form
   label(for="content") Search
   input(type="text" id="content" name="content")
   br
+  label(for="positivity-above") Pos Above
+  input(type="number" id="positivity-above" name="positivityAbove" min="0" step="any")
+  label(for="positivity-below") Below
+  input(type="number" id="positivity-below" name="positivityBelow" min="0" step="any")
+  br
+  label(for="negativity-above") Neg Above
+  input(type="number" id="negativity-above" name="negativityAbove" max="0" step="any")
+  label(for="negativity-below") Below
+  input(type="number" id="negativity-below" name="negativityBelow" max="0" step="any")
+  br
+  label(for="total-above") Tot Above
+  input(type="number" id="total-above" name="totalAbove" step="any")
+  label(for="total-below") Below
+  input(type="number" id="total-below" name="totalBelow" step="any")
+  br
   button(type="submit" formaction='/entries') Entries
   button(type="submit" formaction='/dates') Dates
   button(type="submit" formaction='/impressions') Impressions
