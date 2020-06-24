@@ -8,6 +8,13 @@ html
   body
   include header.pug
 
+  h1 Tags
+
+  form(method="post" action="/tags/new")
+    label(for="name") New Tag
+    input(type="text" id="name" name="name" required)
+    button(type="submit") Save
+
   each tag in tags
     h3 #{tag.name}
     ul
@@ -15,3 +22,5 @@ html
         a(href=tag.entriesLink) Entries
       li
         a(href=tag.datesLink) Date Range View
+      li
+        a(href=tag.deleteLink) Delete
