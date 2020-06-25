@@ -15,7 +15,7 @@ export class Note {
         enum: ContentType,
         default: ContentType.MARKDOWN,
     })
-    content_type: ContentType;
+    contentType: ContentType;
 
     @ManyToOne((type) => Tag, (tag) => tag.notes)
     tag: Tag;
@@ -27,5 +27,5 @@ export class Note {
     importance: number;
 
     @Column()
-    written: Date;
+    writeDate: Date;
 }
