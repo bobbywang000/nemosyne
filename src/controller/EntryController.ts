@@ -5,7 +5,7 @@ import { Impression } from '../entity/Impression';
 import { DateRange } from '../entity/DateRange';
 import { Tag } from '../entity/Tag';
 import { ContentType } from '../enums';
-import { arrayify, unique } from '../utils/arrayUtils';
+import { arrayify } from '../utils/arrayUtils';
 import {
     getOffsetDate,
     dateToSqliteTimestamp,
@@ -112,7 +112,7 @@ export class EntryController {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             elements: formattedEntries
-                .concat(unique(longDateRanges) as any[])
+                .concat(this.unique(longDateRanges) as any[])
                 .sort((e1, e2) => e1.epochTime - e2.epochTime + (e1['isRange'] ? -1 : 1)),
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
             tags: tags,
@@ -339,5 +339,11 @@ export class EntryController {
 
     private formatDeleteLink(id: number): string {
         return `/entries/delete/${id}`;
+    }
+
+    private unique(inputArr: any[]): any[] {
+        return inputArr.filter((value, index, array) => {
+            return array.findIndex((other) => value.name == other.name) === index;
+        });
     }
 }
