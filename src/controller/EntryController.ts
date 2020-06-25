@@ -5,28 +5,26 @@ import { Impression } from '../entity/Impression';
 import { DateRange } from '../entity/DateRange';
 import { Tag } from '../entity/Tag';
 import { ContentType } from '../enums';
+import { arrayify } from '../utils/arrayUtils';
 import {
     getOffsetDate,
     dateToSqliteTimestamp,
-    arrayify,
     startDateOrDefault,
     endDateOrDefault,
-    getImpressionOpts,
-    IMPRESSION_QUERY,
-    unique,
     formatRange,
     formatShortDate,
     dateToSlug,
     parseDateOrDefault,
-} from '../utils';
-import * as MarkdownIt from 'markdown-it';
+} from '../utils/dateUtils';
+import { getImpressionOpts, IMPRESSION_QUERY } from '../utils/impressionUtils';
+import { ContentFormatter } from '../utils/ContentFormatter';
 
 export class EntryController {
     private entryRepo = getRepository(Entry);
     private impressionRepo = getRepository(Impression);
     private dateRangeRepo = getRepository(DateRange);
     private tagRepo = getRepository(Tag);
-    private md = new MarkdownIt();
+    private contentFormatter = new ContentFormatter();
 
     async on(request: Request, response: Response, next: NextFunction) {
         request.query.start = request.params.subjectDate;
@@ -73,12 +71,12 @@ export class EntryController {
         const formattedEntries = entries.map((entry) => {
             return {
                 // TODO: add the title to the formatting somewhere along here
-                content: this.formatContent(entry.content, entry.contentType),
+                content: this.contentFormatter.format(entry.content, entry.contentType),
                 subjectDate: this.formatLongDate(entry.subjectDate),
                 epochTime: entry.subjectDate.getTime(),
                 link: this.formatLinkDate(entry.subjectDate),
-                editLink: this.formatEditLink(entry.id),
-                deleteLink: this.formatDeleteLink(entry.id),
+                editLink: `/entries/edit/${entry.id}`,
+                deleteLink: `/entries/delete/${entry.id}`,
                 writeDate: formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges
                     .sort((range1, range2) => range1.length() - range2.length())
@@ -114,7 +112,7 @@ export class EntryController {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             elements: formattedEntries
-                .concat(unique(longDateRanges) as any[])
+                .concat(this.unique(longDateRanges) as any[])
                 .sort((e1, e2) => e1.epochTime - e2.epochTime + (e1['isRange'] ? -1 : 1)),
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
             tags: tags,
@@ -319,17 +317,6 @@ export class EntryController {
         }
     }
 
-    private formatContent(content: string, contentType: ContentType) {
-        switch (contentType) {
-            case ContentType.HTML:
-                return content;
-            case ContentType.MARKDOWN:
-                return this.md.render(content);
-            case ContentType.PLAINTEXT:
-                return `<code>${content}</code>`;
-        }
-    }
-
     private formatLongDate(date: Date): string {
         const options = {
             timeZone: 'Etc/UTC',
@@ -346,11 +333,9 @@ export class EntryController {
         return `/entries/on/${dateToSlug(date)}`;
     }
 
-    private formatEditLink(id: number): string {
-        return `/entries/edit/${id}`;
-    }
-
-    private formatDeleteLink(id: number): string {
-        return `/entries/delete/${id}`;
+    private unique(inputArr: any[]): any[] {
+        return inputArr.filter((value, index, array) => {
+            return array.findIndex((other) => value.name == other.name) === index;
+        });
     }
 }

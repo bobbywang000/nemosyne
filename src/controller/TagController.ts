@@ -1,13 +1,12 @@
 import { getRepository } from 'typeorm';
 import { NextFunction, Request, Response } from 'express';
 import { Tag } from '../entity/Tag';
-import * as MarkdownIt from 'markdown-it';
-import { ContentType } from '../enums';
-import { dateToSlug } from '../utils';
+import { dateToSlug } from '../utils/dateUtils';
+import { ContentFormatter } from '../utils/ContentFormatter';
 
 export class TagController {
     private repo = getRepository(Tag);
-    private md = new MarkdownIt();
+    private contentFormatter = new ContentFormatter();
 
     async find(request: Request, response: Response, next: NextFunction) {
         let tags;
@@ -27,7 +26,7 @@ export class TagController {
             tags: tags.map((tag) => {
                 const notes = tag.notes.map((note) => {
                     return {
-                        content: this.formatContent(note.content, note.contentType),
+                        content: this.contentFormatter.format(note.content, note.contentType),
                         writeDate: dateToSlug(note.writeDate),
                         deleteLink: `/notes/delete/${note.id}`,
                     };
@@ -56,16 +55,5 @@ export class TagController {
         const tag = await this.repo.findOne(request.params.id);
         this.repo.delete(tag);
         response.redirect('back');
-    }
-
-    private formatContent(content: string, contentType: ContentType) {
-        switch (contentType) {
-            case ContentType.HTML:
-                return content;
-            case ContentType.MARKDOWN:
-                return this.md.render(content);
-            case ContentType.PLAINTEXT:
-                return `<code>${content}</code>`;
-        }
     }
 }

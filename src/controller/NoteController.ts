@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Note } from '../entity/Note';
 import { Tag } from '../entity/Tag';
 import { ContentType } from '../enums';
-import { parseDateOrDefault } from '../utils';
+import { parseDateOrDefault } from '../utils/dateUtils';
 
 export class NoteController {
     private repo = getRepository(Note);
