@@ -144,14 +144,21 @@ export class EntryController {
             .leftJoinAndSelect('range.tags', 'tags')
             .getOne();
 
-        let impressionOpts = {};
         const range = entry.dateRanges[0];
+
+        let impressionOpts = {};
         if (range && range.impression) {
             impressionOpts = {
                 positivity: range.impression.positivity,
                 negativity: range.impression.negativity,
             };
         }
+
+        let tags = [];
+        if (range && range.tags) {
+            tags = arrayify(range.tags.map((tag) => tag.name));
+        }
+
         opts = {
             writeDate: dateToSlug(new Date()),
             subjectDate: dateToSlug(entry.subjectDate),
@@ -159,7 +166,7 @@ export class EntryController {
             contentType: entry.contentType,
             lockedSubjectDate: true,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
-            tags: arrayify(range.tags.map((tag) => tag.name)),
+            tags: tags,
             ...impressionOpts,
         };
         return response.render('editEntry', opts);
@@ -240,7 +247,15 @@ export class EntryController {
 
         await this.entryRepo.save(entry);
 
-        const range = entry.dateRanges[0];
+        let range;
+        if (entry.dateRanges && entry.dateRanges.length == 1) {
+            range = entry.dateRanges[0];
+        } else {
+            range = new DateRange();
+            range.start = entry.subjectDate;
+            range.end = entry.subjectDate;
+        }
+
         const impression = range.impression || new Impression();
         impression.positivity = parseFloat(body.positivity);
         impression.negativity = parseFloat(body.negativity);

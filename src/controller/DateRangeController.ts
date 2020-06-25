@@ -61,6 +61,11 @@ export class DateRangeController {
         });
     }
 
+    async delete(request: Request, response: Response, next: NextFunction) {
+        await this.repo.delete(request.params.id);
+        return response.redirect('back');
+    }
+
     // Need to create a new queryBuilder for every query, so abstract this out into a new method
     private baseSqlQuery(start: string, end: string, httpQuery: any, omitNullTitles: boolean) {
         let sqlQuery = this.repo

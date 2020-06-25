@@ -60,6 +60,14 @@ export const Routes = [
         controller: DateRangeController,
         action: 'list',
     },
+    // TODO: this is pretty ugly and not standard. Figure out how to add a delete using the proper
+    // HTTP verb here.
+    {
+        method: 'get',
+        route: '/dates/delete/:id',
+        controller: DateRangeController,
+        action: 'delete',
+    },
     {
         method: 'get',
         route: '/tags',
