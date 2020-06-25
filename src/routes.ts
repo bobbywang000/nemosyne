@@ -2,6 +2,7 @@ import { EntryController } from './controller/EntryController';
 import { DateRangeController } from './controller/DateRangeController';
 import { TagController } from './controller/TagController';
 import { ImpressionController } from './controller/ImpressionController';
+import { NoteController } from './controller/NoteController';
 
 export const Routes = [
     {
@@ -93,6 +94,12 @@ export const Routes = [
         action: 'find',
     },
     {
+        method: 'get',
+        route: '/tags/name/:name',
+        controller: TagController,
+        action: 'find',
+    },
+    {
         method: 'post',
         route: '/tags/new',
         controller: TagController,
@@ -111,5 +118,25 @@ export const Routes = [
         route: '/impressions',
         controller: ImpressionController,
         action: 'find',
+    },
+    {
+        method: 'get',
+        route: '/notes/new',
+        controller: NoteController,
+        action: 'edit',
+    },
+    {
+        method: 'post',
+        route: '/notes/new',
+        controller: NoteController,
+        action: 'create',
+    },
+    // TODO: this is pretty ugly and not standard. Figure out how to add a delete using the proper
+    // HTTP verb here.
+    {
+        method: 'get',
+        route: '/notes/delete/:id',
+        controller: NoteController,
+        action: 'delete',
     },
 ];

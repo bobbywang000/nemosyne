@@ -24,3 +24,14 @@ html
         a(href=tag.datesLink) Date Range View
       li
         a(href=tag.deleteLink) Delete
+
+    h4 Notes
+
+    ul
+      each note in tag.notes
+        li
+          | !{ note.content }
+          | &nbsp; &nbsp;
+          | Written: #{note.writeDate}
+          | &nbsp; &nbsp;
+          a(href=note.deleteLink) Delete

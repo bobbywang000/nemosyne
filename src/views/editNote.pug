@@ -1,0 +1,42 @@
+html
+  head
+    meta(charset='utf-8')
+    style
+      include css/base.css
+      include css/entry.css
+  body
+
+  include header.pug
+
+  form(method="post")
+    label(for="content") Content
+    textarea(id="content" name="content" rows="40" cols="100" required) #{content}
+    br
+
+    label Content Type
+    br
+    input(type="radio" id="contentType" name="contentType" value="markdown" checked=contentType=="markdown")
+    label(for="markdown") markdown
+    br
+    input(type="radio" id="contentType" name="contentType" value="html" checked=contentType=="html")
+    label(for="html") html
+    br
+    input(type="radio" id="contentType" name="contentType" value="plaintext" checked=contentType=="plaintext")
+    label(for="plaintext") plaintext
+    br
+
+    label(for="tags") Tags
+    select(name="tags" id="tags"  size="2")
+      each tagName in tagNames
+        option(value=tagName) #{tagName}
+    br
+
+    label(for="importance") Importance
+    input(type="number" id="importance" name="importance")
+    br
+
+    label(for="writeDate") Written
+    input(type="date" id="writeDate" name="writeDate" value=writeDate)
+    br
+
+    button(type="submit") Save Note
