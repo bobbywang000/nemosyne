@@ -14,6 +14,9 @@ import {
     getImpressionOpts,
     IMPRESSION_QUERY,
     unique,
+    formatRange,
+    formatShortDate,
+    dateToSlug,
 } from '../utils';
 import * as MarkdownIt from 'markdown-it';
 
@@ -75,12 +78,12 @@ export class EntryController {
                 link: this.formatLinkDate(entry.subjectDate),
                 editLink: this.formatEditLink(entry.id),
                 deleteLink: this.formatDeleteLink(entry.id),
-                writeDate: this.formatShortDate(entry.writeDate),
+                writeDate: formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges
                     .sort((range1, range2) => range1.length() - range2.length())
                     .map((range) => {
                         return {
-                            name: this.formatParentRange(range.start, range.end, range.impression),
+                            name: formatRange(range.start, range.end, range.impression),
                             linkParams: this.formatRangeLinkParams(range.start, range.end),
                             start: range.start,
                             end: range.end,
@@ -99,14 +102,14 @@ export class EntryController {
                 )
                 .map((range) => {
                     return {
-                        name: `${range.title}: ${this.formatParentRange(range.start, range.end, range.impression)}`,
+                        name: `${range.title}: ${formatRange(range.start, range.end, range.impression)}`,
                         isRange: true,
                         epochTime: range.start.getTime(),
                     };
                 });
         });
 
-        return response.render('entry', {
+        return response.render('viewEntry', {
             prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
             elements: formattedEntries
@@ -119,7 +122,7 @@ export class EntryController {
     }
 
     async new(request: Request, response: Response, next: NextFunction) {
-        return response.render('edit', {
+        return response.render('editEntry', {
             contentType: ContentType.MARKDOWN,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
         });
@@ -141,25 +144,32 @@ export class EntryController {
             .leftJoinAndSelect('range.tags', 'tags')
             .getOne();
 
-        let impressionOpts = {};
         const range = entry.dateRanges[0];
+
+        let impressionOpts = {};
         if (range && range.impression) {
             impressionOpts = {
                 positivity: range.impression.positivity,
                 negativity: range.impression.negativity,
             };
         }
+
+        let tags = [];
+        if (range && range.tags) {
+            tags = arrayify(range.tags.map((tag) => tag.name));
+        }
+
         opts = {
-            writeDate: this.dateToSlug(new Date()),
-            subjectDate: this.dateToSlug(entry.subjectDate),
+            writeDate: dateToSlug(new Date()),
+            subjectDate: dateToSlug(entry.subjectDate),
             content: entry.content,
             contentType: entry.contentType,
             lockedSubjectDate: true,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
-            tags: arrayify(range.tags.map((tag) => tag.name)),
+            tags: tags,
             ...impressionOpts,
         };
-        return response.render('edit', opts);
+        return response.render('editEntry', opts);
     }
 
     async create(request: Request, response: Response, next: NextFunction) {
@@ -210,7 +220,7 @@ export class EntryController {
 
         await this.dateRangeRepo.save(range);
 
-        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+        return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
     async update(request: Request, response: Response, next: NextFunction) {
@@ -237,7 +247,15 @@ export class EntryController {
 
         await this.entryRepo.save(entry);
 
-        const range = entry.dateRanges[0];
+        let range;
+        if (entry.dateRanges && entry.dateRanges.length == 1) {
+            range = entry.dateRanges[0];
+        } else {
+            range = new DateRange();
+            range.start = entry.subjectDate;
+            range.end = entry.subjectDate;
+        }
+
         const impression = range.impression || new Impression();
         impression.positivity = parseFloat(body.positivity);
         impression.negativity = parseFloat(body.negativity);
@@ -259,7 +277,7 @@ export class EntryController {
 
         await this.dateRangeRepo.save(range);
 
-        return response.redirect(`/entries/on/${this.dateToSlug(entry.subjectDate)}`);
+        return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
     async delete(request: Request, response: Response, next: NextFunction) {
@@ -296,23 +314,7 @@ export class EntryController {
         if (dateSlug) {
             return new Date(dateSlug);
         } else {
-            return new Date(this.dateToSlug(new Date()));
-        }
-    }
-
-    private formatParentRange(start: Date, end: Date, impression: Impression): string {
-        let formattedDate;
-        if (start.getTime() === end.getTime()) {
-            formattedDate = this.formatShortDate(start);
-        } else {
-            // TODO: just give the title of the range here
-            formattedDate = `${this.formatShortDate(start)} - ${this.formatShortDate(end)}`;
-        }
-
-        if (impression) {
-            return `${formattedDate} (+${impression.positivity}/${impression.negativity})`;
-        } else {
-            return formattedDate;
+            return new Date(dateToSlug(new Date()));
         }
     }
 
@@ -320,7 +322,7 @@ export class EntryController {
         if (start.getTime() === end.getTime()) {
             return null;
         } else {
-            return `?start=${this.dateToSlug(start)}&end=${this.dateToSlug(end)}`;
+            return `?start=${dateToSlug(start)}&end=${dateToSlug(end)}`;
         }
     }
 
@@ -347,15 +349,8 @@ export class EntryController {
         return date.toLocaleDateString('en-US', options);
     }
 
-    private formatShortDate(date: Date): string {
-        const options = {
-            timeZone: 'Etc/UTC',
-        };
-        return date.toLocaleDateString('en-US', options);
-    }
-
     private formatLinkDate(date: Date): string {
-        return `/entries/on/${this.dateToSlug(date)}`;
+        return `/entries/on/${dateToSlug(date)}`;
     }
 
     private formatEditLink(id: number): string {
@@ -364,9 +359,5 @@ export class EntryController {
 
     private formatDeleteLink(id: number): string {
         return `/entries/delete/${id}`;
-    }
-
-    private dateToSlug(date: Date): string {
-        return date.toISOString().split('T')[0];
     }
 }

@@ -56,6 +56,38 @@ export const Routes = [
     },
     {
         method: 'get',
+        route: '/dates/list',
+        controller: DateRangeController,
+        action: 'list',
+    },
+    {
+        method: 'post',
+        route: '/dates/new',
+        controller: DateRangeController,
+        action: 'createOrUpdate',
+    },
+    {
+        method: 'get',
+        route: '/dates/edit/:id',
+        controller: DateRangeController,
+        action: 'edit',
+    },
+    {
+        method: 'post',
+        route: '/dates/edit/:id',
+        controller: DateRangeController,
+        action: 'createOrUpdate',
+    },
+    // TODO: this is pretty ugly and not standard. Figure out how to add a delete using the proper
+    // HTTP verb here.
+    {
+        method: 'get',
+        route: '/dates/delete/:id',
+        controller: DateRangeController,
+        action: 'delete',
+    },
+    {
+        method: 'get',
         route: '/tags',
         controller: TagController,
         action: 'find',

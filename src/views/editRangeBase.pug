@@ -1,0 +1,21 @@
+label(for="title") Title
+textarea(id="title" name="title" rows="2" cols="80" required) #{title}
+br
+label(for="start") Start
+input(type="date" id="start" name="start" value=rangeStart required)
+br
+label(for="end") End
+input(type="date" id="end" name="end" value=rangeEnd required)
+br
+label(for="positivity") Positivity
+input(type="number" id="positivity" name="positivity" min="0" step="any" value=positivity)
+br
+label(for="negativity") Negativity
+input(type="number" id="negativity" name="negativity" max="0" step="any" value=negativity)
+br
+label(for="rangeTags") Tags
+select(name="tags" id="tags"  size="2" multiple)
+  each tagName in tagNames
+    option(value=tagName selected=(tags && tags.includes(tagName))) #{tagName}
+br
+button(type="submit") Save

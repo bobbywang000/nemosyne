@@ -1,0 +1,24 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    style
+      include css/base.css
+      include css/entry.css
+  body
+
+  include header.pug
+
+  div
+    h2 Create New
+    form(method="post", action="/dates/new")
+      include editRangeBase.pug
+
+
+  each range in ranges
+    p #{range.name} &nbsp; &nbsp; &nbsp; &nbsp;
+      a(href=range.entryLink) Entries
+      | &nbsp;
+      a(href=range.editLink) Edit
+      | &nbsp;
+      a(href=range.deleteLink) Delete
