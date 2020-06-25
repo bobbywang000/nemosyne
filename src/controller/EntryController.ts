@@ -75,8 +75,8 @@ export class EntryController {
                 subjectDate: this.formatLongDate(entry.subjectDate),
                 epochTime: entry.subjectDate.getTime(),
                 link: this.formatLinkDate(entry.subjectDate),
-                editLink: this.formatEditLink(entry.id),
-                deleteLink: this.formatDeleteLink(entry.id),
+                editLink: `/entries/edit/${entry.id}`,
+                deleteLink: `/entries/delete/${entry.id}`,
                 writeDate: formatShortDate(entry.writeDate),
                 parentRanges: entry.dateRanges
                     .sort((range1, range2) => range1.length() - range2.length())
@@ -331,14 +331,6 @@ export class EntryController {
 
     private formatLinkDate(date: Date): string {
         return `/entries/on/${dateToSlug(date)}`;
-    }
-
-    private formatEditLink(id: number): string {
-        return `/entries/edit/${id}`;
-    }
-
-    private formatDeleteLink(id: number): string {
-        return `/entries/delete/${id}`;
     }
 
     private unique(inputArr: any[]): any[] {
