@@ -17,6 +17,7 @@ import {
     formatRange,
     formatShortDate,
     dateToSlug,
+    parseDateOrDefault,
 } from '../utils';
 import * as MarkdownIt from 'markdown-it';
 
@@ -178,8 +179,8 @@ export class EntryController {
         entry.content = body.content;
         // TODO: check if it's more idiomatic to have an "enum constructor" here.
         entry.contentType = body.contentType;
-        entry.subjectDate = this.parseDateOrDefault(body.subjectDate);
-        entry.writeDate = this.parseDateOrDefault(body.writeDate);
+        entry.subjectDate = parseDateOrDefault(body.subjectDate);
+        entry.writeDate = parseDateOrDefault(body.writeDate);
         await this.entryRepo.save(entry);
 
         let range;
@@ -239,7 +240,7 @@ export class EntryController {
             .leftJoinAndSelect('range.impression', 'impression')
             .getOne();
 
-        const updatedDate = this.parseDateOrDefault(body.writeDate);
+        const updatedDate = parseDateOrDefault(body.writeDate);
 
         entry.content = body.content;
         entry.contentType = body.contentType;
@@ -308,14 +309,6 @@ export class EntryController {
 
         await this.entryRepo.delete(entry.id);
         return response.redirect('back');
-    }
-
-    private parseDateOrDefault(dateSlug: string): Date {
-        if (dateSlug) {
-            return new Date(dateSlug);
-        } else {
-            return new Date(dateToSlug(new Date()));
-        }
     }
 
     private formatRangeLinkParams(start: Date, end: Date): string {
