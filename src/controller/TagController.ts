@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Tag } from '../entity/Tag';
 import * as MarkdownIt from 'markdown-it';
 import { ContentType } from '../enums';
-import { dateToSlug } from '../utils';
+import { dateToSlug } from '../utils/dateUtils';
 
 export class TagController {
     private repo = getRepository(Tag);
