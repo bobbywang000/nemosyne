@@ -17,6 +17,7 @@ import {
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
+    private impressionRepo = getRepository(Impression);
     private tagRepo = getRepository(Tag);
 
     async find(request: Request, response: Response, next: NextFunction) {
@@ -59,6 +60,68 @@ export class DateRangeController {
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
             ...query,
         });
+    }
+
+    async edit(request: Request, response: Response, next: NextFunction) {
+        const range = await this.repo.findOne({
+            where: {
+                id: request.params.id,
+            },
+            relations: ['impression', 'tags'],
+        });
+        const impression = range.impression || ({} as any);
+
+        return response.render('editRange', {
+            title: range.title,
+            rangeStart: dateToSlug(range.start),
+            rangeEnd: dateToSlug(range.end),
+            positivity: impression.positivity,
+            negativity: impression.negativity,
+            tags: range.tags,
+            tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
+        });
+    }
+
+    async createOrUpdate(request: Request, response: Response, next: NextFunction) {
+        const id = request.params.id;
+        const body = request.body;
+
+        let range;
+        if (id) {
+            range = await this.repo.findOne({
+                where: {
+                    id: id,
+                },
+                relations: ['impression'],
+            });
+        } else {
+            range = new DateRange();
+        }
+
+        range.start = new Date(body.start);
+        range.end = new Date(body.end);
+        range.title = body.title;
+
+        const tags = await this.tagRepo
+            .createQueryBuilder('tag')
+            .where('tag.name IN (:...tags)', {
+                tags: arrayify(body.tags),
+            })
+            .getMany();
+        range.tags = tags;
+
+        await this.repo.save(range);
+
+        if (body.positivity && body.negativity) {
+            const impression = range.impression || new Impression();
+            range.impression = impression;
+            impression.positivity = parseFloat(body.positivity);
+            impression.negativity = parseFloat(body.negativity);
+            impression.written = new Date(dateToSlug(new Date()));
+            await this.impressionRepo.save(impression);
+        }
+
+        return response.redirect(`/dates/list?start=${dateToSlug(range.start)}&end=${dateToSlug(range.end)}`);
     }
 
     async delete(request: Request, response: Response, next: NextFunction) {

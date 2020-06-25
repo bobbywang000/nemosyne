@@ -9,10 +9,16 @@ html
 
   include header.pug
 
+  div
+    h2 Create New
+    form(method="post", action="/dates/new")
+      include editRangeBase.pug
+
+
   each range in ranges
-    p
-      a(href=range.entryLink) #{range.name}
-      | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    p #{range.name} &nbsp; &nbsp; &nbsp; &nbsp;
+      a(href=range.entryLink) Entries
+      | &nbsp;
       a(href=range.editLink) Edit
       | &nbsp;
       a(href=range.deleteLink) Delete
