@@ -17,14 +17,14 @@ import {
     parseDateOrDefault,
 } from '../utils/dateUtils';
 import { getImpressionOpts, IMPRESSION_QUERY } from '../utils/impressionUtils';
-import * as MarkdownIt from 'markdown-it';
+import { ContentFormatter } from '../utils/ContentFormatter';
 
 export class EntryController {
     private entryRepo = getRepository(Entry);
     private impressionRepo = getRepository(Impression);
     private dateRangeRepo = getRepository(DateRange);
     private tagRepo = getRepository(Tag);
-    private md = new MarkdownIt();
+    private contentFormatter = new ContentFormatter();
 
     async on(request: Request, response: Response, next: NextFunction) {
         request.query.start = request.params.subjectDate;
@@ -71,7 +71,7 @@ export class EntryController {
         const formattedEntries = entries.map((entry) => {
             return {
                 // TODO: add the title to the formatting somewhere along here
-                content: this.formatContent(entry.content, entry.contentType),
+                content: this.contentFormatter.format(entry.content, entry.contentType),
                 subjectDate: this.formatLongDate(entry.subjectDate),
                 epochTime: entry.subjectDate.getTime(),
                 link: this.formatLinkDate(entry.subjectDate),
@@ -314,17 +314,6 @@ export class EntryController {
             return null;
         } else {
             return `?start=${dateToSlug(start)}&end=${dateToSlug(end)}`;
-        }
-    }
-
-    private formatContent(content: string, contentType: ContentType) {
-        switch (contentType) {
-            case ContentType.HTML:
-                return content;
-            case ContentType.MARKDOWN:
-                return this.md.render(content);
-            case ContentType.PLAINTEXT:
-                return `<code>${content}</code>`;
         }
     }
 
