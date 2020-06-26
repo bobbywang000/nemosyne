@@ -16,7 +16,7 @@ import {
     dateToSlug,
     parseDateOrDefault,
 } from '../utils/dateUtils';
-import { getImpressionOpts, IMPRESSION_QUERY } from '../utils/impressionUtils';
+import { getImpressionOpts, IMPRESSION_QUERY, hasImpressionOpts } from '../utils/impressionUtils';
 import { ContentFormatter } from '../utils/ContentFormatter';
 
 export class EntryController {
@@ -32,13 +32,43 @@ export class EntryController {
         return this.find(request, response, next);
     }
 
+    // oh BOY does this need a refactor.
     async find(request: Request, response: Response, next: NextFunction) {
-        const start = startDateOrDefault(request.query.start as string);
-        const end = endDateOrDefault(request.query.end as string);
+        const httpQuery = request.query;
 
-        let query = this.entryRepo
+        const start = startDateOrDefault(httpQuery.start as string);
+        const end = endDateOrDefault(httpQuery.end as string);
+
+        let initialSqlQuery = this.entryRepo
             .createQueryBuilder('entry')
             .where('entry.subjectDate >= :start AND entry.subjectDate <= :end', { start: start, end: end })
+            .innerJoinAndMapOne(
+                'entry.dateRanges',
+                DateRange,
+                'dateRanges',
+                'entry.subjectDate = dateRanges.start AND entry.subjectDate = dateRanges.end',
+            );
+
+        if (hasImpressionOpts(httpQuery)) {
+            initialSqlQuery = initialSqlQuery.innerJoinAndMapOne(
+                'dateRanges.impression',
+                Impression,
+                'impression',
+                `impression.id = dateRanges.impressionId AND ${IMPRESSION_QUERY}`,
+                getImpressionOpts(httpQuery),
+            );
+        }
+
+        const content = httpQuery.content;
+        if (content) {
+            initialSqlQuery = initialSqlQuery.andWhere('entry.content LIKE :content', { content: `%${content}%` });
+        }
+
+        const initialEntries = await initialSqlQuery.getMany();
+
+        let sqlQuery = this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id in (:...ids)', { ids: initialEntries.map((entry) => entry.id) })
             .leftJoinAndMapMany(
                 'entry.dateRanges',
                 DateRange,
@@ -49,26 +79,20 @@ export class EntryController {
                 'dateRanges.impression',
                 Impression,
                 'impression',
-                `impression.id = dateRanges.impressionId AND ${IMPRESSION_QUERY}`,
-                getImpressionOpts(request.query),
+                `impression.id = dateRanges.impressionId`,
             )
             .orderBy('entry.subjectDate');
 
         const tags = request.query.tags;
         if (tags) {
-            query = query.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
+            sqlQuery = sqlQuery.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
                 tags: arrayify(tags),
             });
         }
 
-        const content = request.query.content;
-        if (content) {
-            query = query.andWhere('entry.content LIKE :content', { content: `%${content}%` });
-        }
+        const filteredEntries = await sqlQuery.getMany();
 
-        const entries = await query.getMany();
-
-        const formattedEntries = entries.map((entry) => {
+        const formattedEntries = filteredEntries.map((entry) => {
             return {
                 // TODO: add the title to the formatting somewhere along here
                 content: this.contentFormatter.format(entry.content, entry.contentType),
@@ -91,7 +115,7 @@ export class EntryController {
             };
         });
 
-        const longDateRanges = entries.flatMap((entry) => {
+        const longDateRanges = filteredEntries.flatMap((entry) => {
             return entry.dateRanges
                 .filter(
                     (range) =>
