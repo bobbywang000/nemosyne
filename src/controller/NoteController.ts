@@ -37,7 +37,7 @@ export class NoteController {
         note.writeDate = parseDateOrDefault(body.writeDate);
 
         await this.repo.save(note);
-        response.redirect(`/tags/name/${encodeURIComponent(tag.name)}`);
+        response.redirect(`/tags?tags=${encodeURIComponent(tag.name)}`);
     }
 
     async delete(request: Request, response: Response, next: NextFunction) {
