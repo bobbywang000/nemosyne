@@ -5,7 +5,8 @@ import { Impression } from '../entity/Impression';
 import { DateRange } from '../entity/DateRange';
 import { Tag } from '../entity/Tag';
 import { ContentType } from '../enums';
-import { arrayify } from '../utils/arrayUtils';
+import { SQLITE_MAXIMUM_VARIABLE_NUMBER } from '../constants';
+import { arrayify, splitArray } from '../utils/arrayUtils';
 import {
     getOffsetDate,
     dateToSqliteTimestamp,
@@ -38,6 +39,7 @@ export class EntryController {
 
         const start = startDateOrDefault(httpQuery.start as string);
         const end = endDateOrDefault(httpQuery.end as string);
+        const tags = httpQuery.tags;
 
         let initialSqlQuery = this.entryRepo
             .createQueryBuilder('entry')
@@ -66,31 +68,16 @@ export class EntryController {
 
         const initialEntries = await initialSqlQuery.getMany();
 
-        let sqlQuery = this.entryRepo
-            .createQueryBuilder('entry')
-            .where('entry.id in (:...ids)', { ids: initialEntries.map((entry) => entry.id) })
-            .leftJoinAndMapMany(
-                'entry.dateRanges',
-                DateRange,
-                'dateRanges',
-                'entry.subjectDate >= dateRanges.start AND entry.subjectDate <= dateRanges.end',
+        const filteredEntries = (
+            await Promise.all(
+                splitArray(
+                    initialEntries.map((entry) => entry.id),
+                    SQLITE_MAXIMUM_VARIABLE_NUMBER,
+                ).map(async (ids) => {
+                    return await this.buildEntrySubquery(tags, ids).getMany();
+                }),
             )
-            .leftJoinAndMapOne(
-                'dateRanges.impression',
-                Impression,
-                'impression',
-                `impression.id = dateRanges.impressionId`,
-            )
-            .orderBy('entry.subjectDate');
-
-        const tags = request.query.tags;
-        if (tags) {
-            sqlQuery = sqlQuery.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
-                tags: arrayify(tags),
-            });
-        }
-
-        const filteredEntries = await sqlQuery.getMany();
+        ).reduce((acc, chunk) => acc.concat(chunk));
 
         const formattedEntries = filteredEntries.map((entry) => {
             return {
@@ -361,5 +348,32 @@ export class EntryController {
         return inputArr.filter((value, index, array) => {
             return array.findIndex((other) => value.name == other.name) === index;
         });
+    }
+
+    private buildEntrySubquery(tags, ids: number[]) {
+        let sqlQuery = this.entryRepo
+            .createQueryBuilder('entry')
+            .where('entry.id IN (:...ids)', { ids: ids })
+            .leftJoinAndMapMany(
+                'entry.dateRanges',
+                DateRange,
+                'dateRanges',
+                'entry.subjectDate >= dateRanges.start AND entry.subjectDate <= dateRanges.end',
+            )
+            .leftJoinAndMapOne(
+                'dateRanges.impression',
+                Impression,
+                'impression',
+                `impression.id = dateRanges.impressionId`,
+            )
+            .orderBy('entry.subjectDate');
+
+        if (tags) {
+            sqlQuery = sqlQuery.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
+                tags: arrayify(tags),
+            });
+        }
+
+        return sqlQuery;
     }
 }

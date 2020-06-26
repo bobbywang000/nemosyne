@@ -1,0 +1,1 @@
+export const SQLITE_MAXIMUM_VARIABLE_NUMBER = 999;
