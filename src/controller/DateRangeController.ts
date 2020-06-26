@@ -6,7 +6,7 @@ import { Impression } from '../entity/Impression';
 import { Tag } from '../entity/Tag';
 import { arrayify } from '../utils/arrayUtils';
 import { getOffsetDate, startDateOrDefault, endDateOrDefault, formatRange, dateToSlug } from '../utils/dateUtils';
-import { getImpressionOpts, IMPRESSION_QUERY } from '../utils/impressionUtils';
+import { getImpressionOpts, IMPRESSION_QUERY, hasImpressionOpts } from '../utils/impressionUtils';
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
@@ -126,14 +126,18 @@ export class DateRangeController {
     private baseSqlQuery(start: string, end: string, httpQuery: any, omitNullTitles: boolean) {
         let sqlQuery = this.repo
             .createQueryBuilder('range')
-            .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
-            .leftJoinAndMapOne(
+            .where('range.start >= :start AND range.end <= :end', { start: start, end: end });
+
+        if (hasImpressionOpts(httpQuery)) {
+            sqlQuery = sqlQuery.innerJoinAndMapOne(
                 'range.impression',
                 Impression,
                 'impression',
                 `impression.id = range.impressionId AND ${IMPRESSION_QUERY}`,
                 getImpressionOpts(httpQuery),
             );
+        }
+
         const content = httpQuery.content;
         if (content) {
             sqlQuery = sqlQuery.innerJoin(

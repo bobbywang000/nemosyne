@@ -27,6 +27,10 @@ export const getImpressionOpts = (query: any): Record<string, string> => {
     }, {});
 };
 
+export const hasImpressionOpts = (query: any): boolean => {
+    return Object.keys(IMPRESSION_FILTER_DEFAULTS).some((key) => query[key]);
+};
+
 const parseImpressionOrDefault = (input: string, defaultValue: number): number => {
     return input ? parseFloat(input) : defaultValue;
 };
