@@ -3,6 +3,8 @@ import { NextFunction, Request, Response } from 'express';
 import { Tag } from '../entity/Tag';
 import { dateToSlug } from '../utils/dateUtils';
 import { ContentFormatter } from '../utils/ContentFormatter';
+import { Note } from '../entity/Note';
+import { arrayify } from '../utils/arrayUtils';
 
 export class TagController {
     private repo = getRepository(Tag);
@@ -10,14 +12,13 @@ export class TagController {
 
     async find(request: Request, response: Response, next: NextFunction) {
         let tags;
-        const name = request.params.name;
-        if (name) {
-            tags = await this.repo.find({
-                where: {
-                    name: request.params.name,
-                },
-                relations: ['notes'],
-            });
+        const selectedTags = request.query.tags;
+        if (selectedTags) {
+            tags = await this.repo
+                .createQueryBuilder('tag')
+                .where('tag.name in (:...selectedTags)', { selectedTags: arrayify(selectedTags) })
+                .leftJoinAndMapMany('tag.notes', Note, 'note', `tag.id = note.tagId`)
+                .getMany();
         } else {
             tags = await this.repo.find({ relations: ['notes'] });
         }
@@ -40,7 +41,7 @@ export class TagController {
                     notes: notes,
                 };
             }),
-            tagNames: tags.map((tag) => tag.name),
+            tagNames: (await this.repo.find()).map((tag) => tag.name),
         });
     }
 
