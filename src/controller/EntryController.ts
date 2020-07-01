@@ -77,7 +77,7 @@ export class EntryController {
                     return await this.buildEntrySubquery(tags, ids).getMany();
                 }),
             )
-        ).reduce((acc, chunk) => acc.concat(chunk));
+        ).reduce((acc, chunk) => acc.concat(chunk), []);
 
         const formattedEntries = filteredEntries.map((entry) => {
             return {
