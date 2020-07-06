@@ -54,6 +54,6 @@ createConnection()
         // start express server
         app.listen(3000);
 
-        console.log('Express server has started on port 3000. Open http://localhost:3000/entries to see results');
+        console.log('Express server has started on port 3000. Open http://localhost:3000/entries/new to start writing');
     })
     .catch((error) => console.log(error));
