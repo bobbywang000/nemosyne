@@ -131,6 +131,11 @@ export class EntryController {
         });
     }
 
+    async random(request: Request, response: Response, next: NextFunction) {
+        const entry = await this.entryRepo.createQueryBuilder().orderBy('RANDOM()').limit(1).getOne();
+        return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
+    }
+
     async new(request: Request, response: Response, next: NextFunction) {
         return response.render('editEntry', {
             contentType: ContentType.MARKDOWN,

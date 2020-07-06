@@ -51,6 +51,12 @@ export const Routes = [
     },
     {
         method: 'get',
+        route: '/entries/random',
+        controller: EntryController,
+        action: 'random',
+    },
+    {
+        method: 'get',
         route: '/dates',
         controller: DateRangeController,
         action: 'find',
