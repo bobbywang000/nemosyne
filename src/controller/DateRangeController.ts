@@ -44,7 +44,12 @@ export class DateRangeController {
         return response.render('viewRangeList', {
             ranges: ranges.map((range) => {
                 return {
-                    name: `${range.title || 'Untitled'}: ${formatRange(range.start, range.end, range.impression)}`,
+                    name: `${range.title || 'Untitled'}: ${formatRange(
+                        range.start,
+                        range.end,
+                        range.impression,
+                        range.title,
+                    )}`,
                     editLink: this.formatEditLink(range.id),
                     deleteLink: this.formatDeleteLink(range.id),
                     entryLink: this.formatLinkToEntries(range),

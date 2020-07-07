@@ -23,20 +23,23 @@ export const endDateOrDefault = (end: string): string => {
     return dateToSqliteTimestamp(new Date(end || MAX_YEAR));
 };
 
-export const formatRange = (start: Date, end: Date, impression: Impression): string => {
-    let formattedDate;
+export const formatRange = (start: Date, end: Date, impression: Impression, title: string): string => {
+    const rangeComponents = [];
+    if (title) {
+        rangeComponents.push(`${title}:`);
+    }
+
     if (start.getTime() === end.getTime()) {
-        formattedDate = formatShortDate(start);
+        rangeComponents.push(formatShortDate(start));
     } else {
-        // TODO: just give the title of the range here
-        formattedDate = `${formatShortDate(start)} - ${formatShortDate(end)}`;
+        rangeComponents.push(`${formatShortDate(start)} - ${formatShortDate(end)}`);
     }
 
     if (impression) {
-        return `${formattedDate} (+${impression.positivity}/${impression.negativity})`;
-    } else {
-        return formattedDate;
+        rangeComponents.push(`(+${impression.positivity}/${impression.negativity})`);
     }
+
+    return rangeComponents.join(' ');
 };
 
 export const formatShortDate = (date: Date): string => {

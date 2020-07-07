@@ -93,7 +93,7 @@ export class EntryController {
                     .sort((range1, range2) => range1.length() - range2.length())
                     .map((range) => {
                         return {
-                            name: formatRange(range.start, range.end, range.impression),
+                            name: formatRange(range.start, range.end, range.impression, range.title),
                             linkParams: this.formatRangeLinkParams(range.start, range.end),
                             start: range.start,
                             end: range.end,
@@ -112,7 +112,7 @@ export class EntryController {
                 )
                 .map((range) => {
                     return {
-                        name: `${range.title}: ${formatRange(range.start, range.end, range.impression)}`,
+                        name: `${range.title}: ${formatRange(range.start, range.end, range.impression, range.title)}`,
                         isRange: true,
                         epochTime: range.start.getTime(),
                     };
