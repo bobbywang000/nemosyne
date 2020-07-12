@@ -51,3 +51,7 @@ a:visited {
 button, input {
     margin: 5px;
 }
+
+textarea {
+    width: 100%;
+}
