@@ -131,6 +131,11 @@ export class EntryController {
         });
     }
 
+    async latest(request: Request, response: Response, next: NextFunction) {
+        const entry = await this.entryRepo.createQueryBuilder().orderBy('entry.subjectDate', 'DESC').limit(1).getOne();
+        return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
+    }
+
     async random(request: Request, response: Response, next: NextFunction) {
         const entry = await this.entryRepo.createQueryBuilder().orderBy('RANDOM()').limit(1).getOne();
         return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);

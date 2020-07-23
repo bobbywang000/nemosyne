@@ -57,6 +57,12 @@ export const Routes = [
     },
     {
         method: 'get',
+        route: '/entries/latest',
+        controller: EntryController,
+        action: 'latest',
+    },
+    {
+        method: 'get',
         route: '/dates',
         controller: DateRangeController,
         action: 'find',
