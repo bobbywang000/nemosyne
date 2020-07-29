@@ -180,7 +180,7 @@ export class EntryController {
         }
 
         opts = {
-            writeDate: dateToSlug(new Date()),
+            writeDate: dateToSlug(entry.writeDate),
             subjectDate: dateToSlug(entry.subjectDate),
             content: entry.content,
             contentType: entry.contentType,
