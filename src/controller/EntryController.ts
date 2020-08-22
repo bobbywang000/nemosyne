@@ -180,6 +180,7 @@ export class EntryController {
         }
 
         opts = {
+            title: range.title,
             writeDate: dateToSlug(entry.writeDate),
             subjectDate: dateToSlug(entry.subjectDate),
             content: entry.content,
@@ -227,6 +228,7 @@ export class EntryController {
             .getMany();
 
         range.tags = tags;
+        range.title = body.title;
 
         const impression = range.impression || new Impression();
         impression.positivity = parseFloat(body.positivity);
@@ -289,6 +291,7 @@ export class EntryController {
             .getMany();
 
         range.tags = tags;
+        range.title = body.title;
 
         range.impression = impression;
         impression.dateRange = range;

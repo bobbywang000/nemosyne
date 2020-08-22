@@ -9,6 +9,10 @@ html
   include header.pug
 
   form(method="post")
+    label(for="title") Title
+    textarea(id="title" name="title" rows="2" cols="80") #{title}
+    br
+
     label(for="content") Content
     textarea(id="content" name="content" rows="40" cols="100" required) #{content}
     br
