@@ -112,7 +112,7 @@ export class EntryController {
                 )
                 .map((range) => {
                     return {
-                        name: `${range.title}: ${formatRange(range.start, range.end, range.impression, range.title)}`,
+                        name: formatRange(range.start, range.end, range.impression, range.title),
                         isRange: true,
                         epochTime: range.start.getTime(),
                     };
