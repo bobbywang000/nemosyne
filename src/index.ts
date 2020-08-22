@@ -17,6 +17,7 @@ createConnection()
         const app = express();
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
+        app.use(express.static(join(__dirname, '..', 'public')));
 
         // register express routes from defined application routes
         Routes.forEach((route) => {
@@ -45,11 +46,8 @@ createConnection()
             );
         });
 
-        // setup express app
         app.set('view engine', 'pug');
         app.set('views', join(SRC_ROOT, 'views'));
-        app.use(express.static(join(SRC_ROOT, 'public')));
-        app.use(express.static('public'));
 
         // start express server
         app.listen(3000);
