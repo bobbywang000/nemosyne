@@ -19,6 +19,7 @@ import {
 } from '../utils/dateUtils';
 import { getImpressionOpts, IMPRESSION_QUERY, hasImpressionOpts } from '../utils/impressionUtils';
 import { ContentFormatter } from '../utils/ContentFormatter';
+import { nullifyIfBlank } from '../utils/stringUtils';
 
 export class EntryController {
     private entryRepo = getRepository(Entry);
@@ -228,7 +229,7 @@ export class EntryController {
             .getMany();
 
         range.tags = tags;
-        range.title = body.title;
+        range.title = nullifyIfBlank(body.title);
 
         const impression = range.impression || new Impression();
         impression.positivity = parseFloat(body.positivity);
@@ -291,7 +292,7 @@ export class EntryController {
             .getMany();
 
         range.tags = tags;
-        range.title = body.title;
+        range.title = nullifyIfBlank(body.title);
 
         range.impression = impression;
         impression.dateRange = range;
