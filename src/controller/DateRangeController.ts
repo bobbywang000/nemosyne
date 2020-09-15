@@ -126,7 +126,8 @@ export class DateRangeController {
     private baseSqlQuery(start: string, end: string, httpQuery: any, omitNullTitles: boolean) {
         let sqlQuery = this.repo
             .createQueryBuilder('range')
-            .where('range.start >= :start AND range.end <= :end', { start: start, end: end });
+            .where('range.start >= :start AND range.end <= :end', { start: start, end: end })
+            .orderBy('range.start');
 
         if (hasImpressionOpts(httpQuery)) {
             sqlQuery = sqlQuery.innerJoinAndMapOne(
