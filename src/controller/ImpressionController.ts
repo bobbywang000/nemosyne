@@ -47,8 +47,8 @@ export class ImpressionController {
 
             // rangePlot.priceChannels(mapping, 10);
 
-            rangePlot.yScale().minimum(-8);
-            rangePlot.yScale().maximum(8);
+            // rangePlot.yScale().minimum(-8);
+            // rangePlot.yScale().maximum(8);
 
             var trendPlot = chart.plot(1);
 
@@ -61,8 +61,11 @@ export class ImpressionController {
             var ema30 = trendPlot.ema(mapping, 30).series();
             ema30.name("30-day weighted avg");
 
-            trendPlot.yScale().minimum(-4);
-            trendPlot.yScale().maximum(4);
+            var ema90 = trendPlot.ema(mapping, 90).series();
+            ema90.name("90-day weighted avg");
+
+            // trendPlot.yScale().minimum(-4);
+            // trendPlot.yScale().maximum(4);
 
             // Set up vertical gridlines
             rangePlot.yMinorGrid().palette(["White", null]);
