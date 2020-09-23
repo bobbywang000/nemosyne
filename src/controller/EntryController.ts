@@ -121,8 +121,10 @@ export class EntryController {
         });
 
         return response.render('viewEntry', {
-            prev: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
-            next: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
+            prevYear: this.formatLinkDate(getOffsetDate(new Date(start), -365)),
+            prevDay: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
+            nextDay: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
+            nextYear: this.formatLinkDate(getOffsetDate(new Date(end), 365)),
             elements: formattedEntries
                 .concat(this.unique(longDateRanges) as any[])
                 .sort((e1, e2) => e1.epochTime - e2.epochTime + (e1['isRange'] ? -1 : 1)),

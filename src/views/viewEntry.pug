@@ -10,9 +10,22 @@ html
   include header.pug
 
   h3
-    a(href=prev) prev
+    a(href=prevYear) Prev Year
     | &nbsp;
-    a(href=next) next
+    | &nbsp;
+    | &nbsp;
+    | &nbsp;
+    a(href=prevDay) Yesterday
+    | &nbsp;
+    | &nbsp;
+    | &nbsp;
+    | &nbsp;
+    a(href=nextDay) Tomorrow
+    | &nbsp;
+    | &nbsp;
+    | &nbsp;
+    | &nbsp;
+    a(href=nextYear) Next Year
 
   each element in elements
     if element.isRange
