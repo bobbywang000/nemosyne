@@ -73,7 +73,8 @@ export class EntryController {
             await Promise.all(
                 splitArray(
                     initialEntries.map((entry) => entry.id),
-                    SQLITE_MAXIMUM_VARIABLE_NUMBER,
+                    // We subtract 50 because we may need to add tags too, so we add some headroom.
+                    SQLITE_MAXIMUM_VARIABLE_NUMBER - 50,
                 ).map(async (ids) => {
                     return await this.buildEntrySubquery(tags, ids).getMany();
                 }),
