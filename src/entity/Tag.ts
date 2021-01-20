@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany } from 'typeorm';
 import { DateRange } from './DateRange';
-import { Note } from './Note';
 
 @Entity()
 export class Tag {
@@ -14,7 +13,4 @@ export class Tag {
 
     @ManyToMany((type) => DateRange, (dateRange) => dateRange.tags)
     dateRanges: DateRange[];
-
-    @OneToMany((type) => Note, (note) => note.tag)
-    notes: Note[];
 }
