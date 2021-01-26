@@ -383,7 +383,8 @@ export class EntryController {
                 'impression',
                 `impression.id = dateRanges.impressionId`,
             )
-            .orderBy('entry.subjectDate');
+            .orderBy('entry.subjectDate')
+            .orderBy('entry.writeDate');
 
         if (tags) {
             sqlQuery = sqlQuery.innerJoinAndSelect('dateRanges.tags', 'tag', 'tag.name IN (:...tags)', {
