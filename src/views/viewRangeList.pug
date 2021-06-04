@@ -22,4 +22,4 @@ html
       | &nbsp;
       a(href=range.editLink) Edit
       | &nbsp;
-      a(href=range.deleteLink) Delete
+      a(href=range.deleteLink onclick="return confirm('Are you sure you want to delete this range?');") Delete

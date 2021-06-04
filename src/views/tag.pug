@@ -24,4 +24,4 @@ html
       li
         a(href=tag.datesLink) Date Range View
       li
-        a(href=tag.deleteLink) Delete
+        a(href=tag.deleteLink onclick="return confirm('Are you sure you want to delete this tag?');") Delete
