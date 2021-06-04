@@ -37,7 +37,7 @@ html
       h4
         a(href=element.editLink) Edit
         | &nbsp;
-        a(href=element.deleteLink) Delete
+        a(href=element.deleteLink onclick="return confirm('Are you sure you want to delete this entry?');") Delete
       | Ranges:
 
       ul
