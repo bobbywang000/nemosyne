@@ -6,6 +6,12 @@ import { ImpressionController } from './controller/ImpressionController';
 export const Routes = [
     {
         method: 'get',
+        route: '/',
+        controller: EntryController,
+        action: 'latest',
+    },
+    {
+        method: 'get',
         route: '/entries',
         controller: EntryController,
         action: 'find',
