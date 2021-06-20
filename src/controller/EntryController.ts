@@ -123,8 +123,12 @@ export class EntryController {
 
         return response.render('viewEntry', {
             prevYear: this.formatLinkDate(getOffsetDate(new Date(start), -365)),
+            prevMonth: this.formatLinkDate(getOffsetDate(new Date(start), -30)),
+            prevWeek: this.formatLinkDate(getOffsetDate(new Date(start), -7)),
             prevDay: this.formatLinkDate(getOffsetDate(new Date(start), -1)),
             nextDay: this.formatLinkDate(getOffsetDate(new Date(end), 1)),
+            nextWeek: this.formatLinkDate(getOffsetDate(new Date(end), 7)),
+            nextMonth: this.formatLinkDate(getOffsetDate(new Date(end), 30)),
             nextYear: this.formatLinkDate(getOffsetDate(new Date(end), 365)),
             elements: formattedEntries
                 .concat(this.unique(longDateRanges) as any[])

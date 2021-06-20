@@ -29,6 +29,12 @@ export const Routes = [
         action: 'new',
     },
     {
+        method: 'get',
+        route: '/new',
+        controller: EntryController,
+        action: 'new',
+    },
+    {
         method: 'post',
         route: '/entries/new',
         controller: EntryController,
