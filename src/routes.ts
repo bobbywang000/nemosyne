@@ -68,6 +68,12 @@ export const Routes = [
     },
     {
         method: 'get',
+        route: '/latest',
+        controller: EntryController,
+        action: 'latest',
+    },
+    {
+        method: 'get',
         route: '/entries/latest',
         controller: EntryController,
         action: 'latest',
