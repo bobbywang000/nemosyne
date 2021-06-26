@@ -239,8 +239,8 @@ export class EntryController {
         range.title = nullifyIfBlank(body.title);
 
         const impression = range.impression || new Impression();
-        impression.positivity = parseFloat(body.positivity);
-        impression.negativity = parseFloat(body.negativity);
+        impression.positivity = parseFloat(body.positivity || 0);
+        impression.negativity = parseFloat(body.negativity || 0);
         impression.written = entry.writeDate;
 
         range.impression = impression;
@@ -287,8 +287,8 @@ export class EntryController {
         }
 
         const impression = range.impression || new Impression();
-        impression.positivity = parseFloat(body.positivity);
-        impression.negativity = parseFloat(body.negativity);
+        impression.positivity = parseFloat(body.positivity || 0);
+        impression.negativity = parseFloat(body.negativity || 0);
         impression.written = updatedDate;
 
         const tags = await this.tagRepo
