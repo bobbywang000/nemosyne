@@ -1,4 +1,5 @@
 import { Impression } from '../entity/Impression';
+import * as moment from 'moment';
 
 // Totally arbitrary - would use infinity (or negative infinity) for all the extreme values,
 // but Typeorm doesn't like infinity. So we just choose arbitrarily large numbers.
@@ -57,6 +58,6 @@ export const parseDateOrDefault = (dateSlug: string): Date => {
     if (dateSlug) {
         return new Date(dateSlug);
     } else {
-        return new Date(dateToSlug(new Date()));
+        return new Date(moment().format().split('T')[0]);
     }
 };
