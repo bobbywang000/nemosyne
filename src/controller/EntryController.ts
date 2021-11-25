@@ -20,6 +20,7 @@ import {
 import { getImpressionOpts, IMPRESSION_QUERY, hasImpressionOpts } from '../utils/impressionUtils';
 import { ContentFormatter } from '../utils/ContentFormatter';
 import { nullifyIfBlank } from '../utils/stringUtils';
+import { print } from 'util';
 
 export class EntryController {
     private entryRepo = getRepository(Entry);
@@ -204,7 +205,7 @@ export class EntryController {
     async create(request: Request, response: Response, next: NextFunction) {
         const body = request.body;
         const entry = new Entry();
-        entry.content = body.content;
+        entry.content = this.getBodyContent(body.doubleNewlines, body.content);
         // TODO: check if it's more idiomatic to have an "enum constructor" here.
         entry.contentType = body.contentType;
         entry.subjectDate = parseDateOrDefault(body.subjectDate);
@@ -253,6 +254,14 @@ export class EntryController {
         return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
+    getBodyContent(doubleNewlines: string, content: string) {
+        if (doubleNewlines === 'on') {
+            return content.replace(/\n/g, '\n\n');
+        } else {
+            return content;
+        }
+    }
+
     async update(request: Request, response: Response, next: NextFunction) {
         const id = request.params.id;
         const body = request.body;
@@ -271,7 +280,7 @@ export class EntryController {
 
         const updatedDate = parseDateOrDefault(body.writeDate);
 
-        entry.content = body.content;
+        entry.content = this.getBodyContent(body.doubleNewlines, body.content);
         entry.contentType = body.contentType;
         entry.writeDate = updatedDate;
 
