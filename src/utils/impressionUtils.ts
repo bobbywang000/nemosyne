@@ -17,7 +17,7 @@ const IMPRESSION_FILTER_DEFAULTS = {
     totalBelow: 100,
 };
 
-export const getImpressionOpts = (query: any): Record<string, string> => {
+export const getImpressionOpts = (query: Record<string, unknown>): Record<string, string> => {
     return Object.keys(IMPRESSION_FILTER_DEFAULTS).reduce((acc, requirement) => {
         acc[requirement] = parseImpressionOrDefault(
             query[requirement] as string,
@@ -27,8 +27,8 @@ export const getImpressionOpts = (query: any): Record<string, string> => {
     }, {});
 };
 
-export const hasImpressionOpts = (query: any): boolean => {
-    return Object.keys(IMPRESSION_FILTER_DEFAULTS).some((key) => query[key]);
+export const hasImpressionOpts = (query: Record<string, unknown>): boolean => {
+    return Object.keys(IMPRESSION_FILTER_DEFAULTS).some((key) => query[key] as boolean);
 };
 
 const parseImpressionOrDefault = (input: string, defaultValue: number): number => {

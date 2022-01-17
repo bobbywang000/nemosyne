@@ -7,7 +7,7 @@ export class ImpressionController {
     private repo = getRepository(DateRange);
     private tagRepo = getRepository(Tag);
 
-    async find(request: Request, response: Response, next: NextFunction) {
+    async find(request: Request, response: Response, next: NextFunction): Promise<void> {
         const rangesWithImpressions = await this.repo
             .createQueryBuilder('range')
             .innerJoinAndSelect('range.impression', 'impression')

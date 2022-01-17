@@ -13,7 +13,7 @@ export class DateRangeController {
     private impressionRepo = getRepository(Impression);
     private tagRepo = getRepository(Tag);
 
-    async find(request: Request, response: Response, next: NextFunction) {
+    async find(request: Request, response: Response, next: NextFunction): Promise<void> {
         const query = request.query;
         const start = startDateOrDefault(query.start as string);
         const end = endDateOrDefault(query.end as string);
@@ -34,7 +34,7 @@ export class DateRangeController {
         });
     }
 
-    async list(request: Request, response: Response, next: NextFunction) {
+    async list(request: Request, response: Response, next: NextFunction): Promise<void> {
         const query = request.query;
         const start = startDateOrDefault(query.start as string);
         const end = endDateOrDefault(query.end as string);
@@ -55,14 +55,14 @@ export class DateRangeController {
         });
     }
 
-    async edit(request: Request, response: Response, next: NextFunction) {
+    async edit(request: Request, response: Response, next: NextFunction): Promise<void> {
         const range = await this.repo.findOne({
             where: {
                 id: request.params.id,
             },
             relations: ['impression', 'tags'],
         });
-        const impression = range.impression || ({} as any);
+        const impression = range.impression || ({} as Impression);
 
         return response.render('editRange', {
             title: range.title,
@@ -75,7 +75,7 @@ export class DateRangeController {
         });
     }
 
-    async createOrUpdate(request: Request, response: Response, next: NextFunction) {
+    async createOrUpdate(request: Request, response: Response, next: NextFunction): Promise<void> {
         const id = request.params.id;
         const body = request.body;
 
@@ -117,13 +117,13 @@ export class DateRangeController {
         return response.redirect(`/dates/list?start=${dateToSlug(range.start)}&end=${dateToSlug(range.end)}`);
     }
 
-    async delete(request: Request, response: Response, next: NextFunction) {
+    async delete(request: Request, response: Response, next: NextFunction): Promise<void> {
         await this.repo.delete(request.params.id);
         return response.redirect('back');
     }
 
     // Need to create a new queryBuilder for every query, so abstract this out into a new method
-    private baseSqlQuery(start: string, end: string, httpQuery: any, omitNullTitles: boolean) {
+    private baseSqlQuery(start: string, end: string, httpQuery: Record<string, unknown>, omitNullTitles: boolean) {
         let sqlQuery = this.repo
             .createQueryBuilder('range')
             .where('range.start >= :start AND range.end <= :end', { start: start, end: end })

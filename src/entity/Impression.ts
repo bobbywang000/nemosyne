@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
 import { DateRange } from './DateRange';
 
 @Entity()

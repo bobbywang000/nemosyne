@@ -20,7 +20,12 @@ import {
 import { getImpressionOpts, IMPRESSION_QUERY, hasImpressionOpts } from '../utils/impressionUtils';
 import { ContentFormatter } from '../utils/ContentFormatter';
 import { nullifyIfBlank } from '../utils/stringUtils';
-import { print } from 'util';
+
+type longDateRange = {
+    name: string;
+    isRange: boolean;
+    epochTime: number;
+};
 
 export class EntryController {
     private entryRepo = getRepository(Entry);
@@ -29,14 +34,14 @@ export class EntryController {
     private tagRepo = getRepository(Tag);
     private contentFormatter = new ContentFormatter();
 
-    async on(request: Request, response: Response, next: NextFunction) {
+    async on(request: Request, response: Response, next: NextFunction): Promise<void> {
         request.query.start = request.params.subjectDate;
         request.query.end = request.params.subjectDate;
         return this.find(request, response, next);
     }
 
     // oh BOY does this need a refactor.
-    async find(request: Request, response: Response, next: NextFunction) {
+    async find(request: Request, response: Response, next: NextFunction): Promise<void> {
         const httpQuery = request.query;
 
         const start = startDateOrDefault(httpQuery.start as string);
@@ -132,6 +137,8 @@ export class EntryController {
             nextMonth: this.formatLinkDate(getOffsetDate(new Date(end), 30)),
             nextYear: this.formatLinkDate(getOffsetDate(new Date(end), 365)),
             elements: formattedEntries
+                // Extremely unsafe here, but I don't really want to fix the logic here.
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .concat(this.unique(longDateRanges) as any[])
                 .sort((e1, e2) => e1.epochTime - e2.epochTime + (e1['isRange'] ? -1 : 1)),
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
@@ -140,24 +147,24 @@ export class EntryController {
         });
     }
 
-    async latest(request: Request, response: Response, next: NextFunction) {
+    async latest(request: Request, response: Response, next: NextFunction): Promise<void> {
         const entry = await this.entryRepo.createQueryBuilder().orderBy('entry.subjectDate', 'DESC').limit(1).getOne();
         return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
-    async random(request: Request, response: Response, next: NextFunction) {
+    async random(request: Request, response: Response, next: NextFunction): Promise<void> {
         const entry = await this.entryRepo.createQueryBuilder().orderBy('RANDOM()').limit(1).getOne();
         return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
-    async new(request: Request, response: Response, next: NextFunction) {
+    async new(request: Request, response: Response, next: NextFunction): Promise<void> {
         return response.render('editEntry', {
             contentType: ContentType.MARKDOWN,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
         });
     }
 
-    async edit(request: Request, response: Response, next: NextFunction) {
+    async edit(request: Request, response: Response, next: NextFunction): Promise<void> {
         const id = request.params.id;
         let opts = {};
         const entry = await this.entryRepo
@@ -202,7 +209,7 @@ export class EntryController {
         return response.render('editEntry', opts);
     }
 
-    async create(request: Request, response: Response, next: NextFunction) {
+    async create(request: Request, response: Response, next: NextFunction): Promise<void> {
         const body = request.body;
         const entry = new Entry();
         entry.content = this.getBodyContent(body.doubleNewlines, body.content);
@@ -254,7 +261,7 @@ export class EntryController {
         return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
-    getBodyContent(doubleNewlines: string, content: string) {
+    getBodyContent(doubleNewlines: string, content: string): string {
         if (doubleNewlines === 'on') {
             return content.replace(/\n/g, '\n\n');
         } else {
@@ -262,7 +269,7 @@ export class EntryController {
         }
     }
 
-    async update(request: Request, response: Response, next: NextFunction) {
+    async update(request: Request, response: Response, next: NextFunction): Promise<void> {
         const id = request.params.id;
         const body = request.body;
 
@@ -320,7 +327,7 @@ export class EntryController {
         return response.redirect(`/entries/on/${dateToSlug(entry.subjectDate)}`);
     }
 
-    async delete(request: Request, response: Response, next: NextFunction) {
+    async delete(request: Request, response: Response, next: NextFunction): Promise<void> {
         const id = request.params.id;
         const entry = await this.entryRepo.findOne(id);
         const subjectDate = dateToSqliteTimestamp(entry.subjectDate);
@@ -374,7 +381,7 @@ export class EntryController {
         return `/entries/on/${dateToSlug(date)}`;
     }
 
-    private unique(inputArr: any[]): any[] {
+    private unique(inputArr: longDateRange[]): longDateRange[] {
         return inputArr.filter((value, index, array) => {
             return array.findIndex((other) => value.name == other.name) === index;
         });
