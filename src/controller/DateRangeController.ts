@@ -70,7 +70,7 @@ export class DateRangeController {
             rangeEnd: dateToSlug(range.end),
             positivity: impression.positivity,
             negativity: impression.negativity,
-            tags: range.tags,
+            tags: arrayify(range.tags.map((tag) => tag.name)),
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
         });
     }
