@@ -361,10 +361,10 @@ export class EntryController {
     private formatLongDate(date: Date): string {
         const options = {
             timeZone: 'Etc/UTC',
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+            weekday: 'long' as const,
+            year: 'numeric' as const,
+            month: 'long' as const,
+            day: 'numeric' as const,
         };
 
         return date.toLocaleDateString('en-US', options);
