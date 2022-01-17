@@ -192,7 +192,7 @@ export class EntryController {
             title: range.title,
             writeDate: dateToSlug(entry.writeDate),
             subjectDate: dateToSlug(entry.subjectDate),
-            content: entry.content,
+            existingContent: entry.content,
             contentType: entry.contentType,
             lockedSubjectDate: true,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
