@@ -2,3 +2,20 @@ body {
     max-width: 80%;
     width: 60ch;
 }
+
+details>summary span.icon {
+    transition: all 0.3s;
+    margin-left: 10px;
+    float: right;
+    width: 24px;
+    height: 24px;
+}
+
+details[open] summary span.icon {
+    transform: rotate(-0.5turn);
+}
+
+summary {
+    display: flex;
+}
+
