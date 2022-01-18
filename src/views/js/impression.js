@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-var foo = function (data) {
+var render = function (data) {
     var table, mapping, chart;
     // set the data
     table = anychart.data.table();
@@ -81,19 +81,4 @@ var foo = function (data) {
 
     rangePicker.render(chart);
     rangeSelector.render(chart);
-
-    chart.listen('pointDblClick', function (event) {
-        var point = event.point;
-        alert(point);
-        if (!!point.get('end')) {
-            var start = new Date(point.get('start')).toISOString().split('T')[0];
-            var rawEnd = new Date(point.get('end'));
-            rawEnd.setDate(rawEnd.getDate() - 1);
-            var end = rawEnd.toISOString().split('T')[0];
-            window.location = '/entries/from/' + start + '/to/' + end;
-        } else {
-            var singleDate = new Date(point.get('x')).toISOString().split('T')[0];
-            window.location = '/entries/on/' + singleDate;
-        }
-    });
 };
