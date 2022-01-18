@@ -161,6 +161,7 @@ export class EntryController {
         return response.render('editEntry', {
             contentType: ContentType.MARKDOWN,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
+            today: dateToSlug(parseDateOrDefault()),
         });
     }
 
@@ -204,6 +205,7 @@ export class EntryController {
             lockedSubjectDate: true,
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
             tags: tags,
+            today: dateToSlug(parseDateOrDefault()),
             ...impressionOpts,
         };
         return response.render('editEntry', opts);

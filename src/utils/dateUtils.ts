@@ -54,7 +54,7 @@ export const dateToSlug = (date: Date): string => {
     return date.toISOString().split('T')[0];
 };
 
-export const parseDateOrDefault = (dateSlug: string): Date => {
+export const parseDateOrDefault = (dateSlug?: string): Date => {
     if (dateSlug) {
         return new Date(dateSlug);
     } else {
