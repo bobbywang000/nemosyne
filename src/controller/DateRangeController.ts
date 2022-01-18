@@ -7,7 +7,7 @@ import { Tag } from '../entity/Tag';
 import { arrayify } from '../utils/arrayUtils';
 import { getOffsetDate, startDateOrDefault, endDateOrDefault, formatRange, dateToSlug } from '../utils/dateUtils';
 import { getImpressionOpts, IMPRESSION_QUERY, hasImpressionOpts } from '../utils/impressionUtils';
-import { escapeArrayToExecutableJSArray } from '../utils/stringUtils';
+import { toExecutableJSArray } from '../utils/stringUtils';
 
 export class DateRangeController {
     private repo = getRepository(DateRange);
@@ -170,33 +170,33 @@ export class DateRangeController {
     private existingJS(ranges: DateRange[], moments: DateRange[]): string {
         return `
         anychart.onDocumentReady(function () {
-            var rangeData = ${escapeArrayToExecutableJSArray(ranges.map((range) => this.rangeToJSArray(range)))}
-            var momentData = ${escapeArrayToExecutableJSArray(moments.map((moment) => this.momentToJSArray(moment)))}
+            var rangeData = ${toExecutableJSArray(ranges.map((range) => this.rangeToJSArray(range)))}
+            var momentData = ${toExecutableJSArray(moments.map((moment) => this.momentToJSArray(moment)))}
             render(rangeData, momentData);
         });
         `.trim();
     }
 
     private rangeToJSArray(range: DateRange): string {
-        return escapeArrayToExecutableJSArray([
-            this.escapeTitleToExecutableJSLiteral(range.title || ''),
-            this.escapeDateToExecutableJSLiteral(range.start),
-            this.escapeDateToExecutableJSLiteral(getOffsetDate(range.end, 1)),
+        return toExecutableJSArray([
+            this.titleToExecutableJS(range.title || ''),
+            this.dateToExecutableJS(range.start),
+            this.dateToExecutableJS(getOffsetDate(range.end, 1)),
         ]);
     }
 
     private momentToJSArray(moment: DateRange): string {
-        return escapeArrayToExecutableJSArray([
-            this.escapeDateToExecutableJSLiteral(moment.start),
-            this.escapeTitleToExecutableJSLiteral(moment.title || moment.start.toISOString().split('T')[0]),
+        return toExecutableJSArray([
+            this.dateToExecutableJS(moment.start),
+            this.titleToExecutableJS(moment.title || moment.start.toISOString().split('T')[0]),
         ]);
     }
 
-    private escapeTitleToExecutableJSLiteral(title: string): string {
+    private titleToExecutableJS(title: string): string {
         return `"${title.replace(/"/g, "'")}"`;
     }
 
-    private escapeDateToExecutableJSLiteral(date: Date): string {
+    private dateToExecutableJS(date: Date): string {
         return `new Date('${date.toISOString()}')`;
     }
 
