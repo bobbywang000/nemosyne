@@ -152,6 +152,12 @@ export const Routes = [
         method: 'get',
         route: '/impressions',
         controller: ImpressionController,
+        action: 'showAll',
+    },
+    {
+        method: 'get',
+        route: '/impressions/ajax/:date',
+        controller: ImpressionController,
         action: 'find',
     },
 ];
