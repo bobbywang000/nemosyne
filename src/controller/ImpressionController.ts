@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { DateRange } from '../entity/DateRange';
 import { Tag } from '../entity/Tag';
 import { dateToSlug } from '../utils/dateUtils';
+import { escapeArrayToExecutableJSArray } from '../utils/stringUtils';
 
 export class ImpressionController {
     private repo = getRepository(DateRange);
@@ -22,23 +23,17 @@ export class ImpressionController {
     }
 
     private existingJS(ranges: DateRange[]): string {
-        return `anychart.onDocumentReady(function () { render(${this.escapeArrayToExecutableJSArray(
+        return `anychart.onDocumentReady(function () { render(${escapeArrayToExecutableJSArray(
             ranges.map((range) => this.rangeToJSArray(range)),
         )}) })`;
     }
 
     private rangeToJSArray(range: DateRange): string {
-        return this.escapeArrayToExecutableJSArray([
+        return escapeArrayToExecutableJSArray([
             "'" + dateToSlug(range.start) + "'",
             range.impression.positivity,
             range.impression.negativity,
             range.impression.positivity + range.impression.negativity,
         ]);
-    }
-
-    private escapeArrayToExecutableJSArray(arr: unknown[]): string {
-        return `[
-            ${arr.join(',\n')}
-        ]`;
     }
 }
