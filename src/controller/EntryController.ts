@@ -143,6 +143,8 @@ export class EntryController {
                 .sort((e1, e2) => e1.epochTime - e2.epochTime + (e1['isRange'] ? -1 : 1)),
             tagNames: (await this.tagRepo.find()).map((tag) => tag.name),
             tags: tags,
+            numEntries: formattedEntries.length,
+            numRanges: this.unique(longDateRanges).length,
             ...request.query,
         });
     }
