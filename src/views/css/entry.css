@@ -1,6 +1,6 @@
 body {
     max-width: 80%;
-    width: 60ch;
+    width: 65ch;
 }
 
 details>summary span.icon {
@@ -17,5 +17,6 @@ details[open] summary span.icon {
 
 summary {
     display: flex;
+    justify-content: center;
 }
 
