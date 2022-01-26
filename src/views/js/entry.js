@@ -6,8 +6,8 @@ $(document).ready(function () {
             url: `/impressions/ajax/${date}`,
             dataType: 'json',
         }).done(function (data) {
-            $('#negativity').val(data.negativity);
-            $('#positivity').val(data.positivity);
+            $('#negativity').val(data.negativity ? data.negativity : '');
+            $('#positivity').val(data.positivity ? data.positivity : '');
         });
     });
 });
