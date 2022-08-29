@@ -6,6 +6,9 @@ html
         include css/base.css
         include css/entry.css
     title Nemosyne
+
+    script
+      include js/viewEntry.js
   body
 
   include header.pug
@@ -26,12 +29,12 @@ html
     | &nbsp;
     | &nbsp;
     | &nbsp;
-    a(href=prevDay) -Day
+    a(href=prevDay id="prev") -Day
     | &nbsp;
     | &nbsp;
     | &nbsp;
     | &nbsp;
-    a(href=nextDay) +Day
+    a(href=nextDay id="next") +Day
     | &nbsp;
     | &nbsp;
     | &nbsp;
