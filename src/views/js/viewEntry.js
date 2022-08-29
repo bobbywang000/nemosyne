@@ -1,8 +1,17 @@
 onkeyup = (event) => {
     const code = event.code;
-    if (code === 'ArrowLeft') {
-        document.getElementById('prev').click();
-    } else if (code === 'ArrowRight') {
-        document.getElementById('next').click();
+    let element;
+    if (code === 'ArrowLeft' || code === 'KeyA') {
+        element = document.getElementById('prev');
+    } else if (code === 'ArrowRight' || code === 'KeyD') {
+        element = document.getElementById('next');
+    } else if (code === 'KeyE') {
+        element = document.getElementById('edit');
+    } else if (code === 'KeyR') {
+        element = document.getElementById('delete');
+    }
+
+    if (element) {
+        element.click();
     }
 };

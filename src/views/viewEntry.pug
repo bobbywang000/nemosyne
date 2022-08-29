@@ -53,7 +53,7 @@ html
   
   b Total entries: #{numEntries}. Total ranges: #{numRanges}
 
-  each element in elements
+  each element, index in elements
     if element.isRange
       h1 #{element.name}
     else
@@ -63,9 +63,14 @@ html
             a(href=element.link) #{element.subjectDate} (written #{element.writeDate})
             span(class="icon") ˄
         h4
-          a(href=element.editLink) Edit
-          | &nbsp;
-          a(href=element.deleteLink onclick="return confirm('Are you sure you want to delete this entry?');") Delete
+          if index == 0
+            a(href=element.editLink id="edit") Edit
+            | &nbsp;
+            a(href=element.deleteLink id="delete" onclick="return confirm('Are you sure you want to delete this entry?');") Delete
+          else
+            a(href=element.editLink) Edit
+            | &nbsp;
+            a(href=element.deleteLink onclick="return confirm('Are you sure you want to delete this entry?');") Delete
         | Ranges:
 
         ul
