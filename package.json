@@ -24,8 +24,8 @@
     "prettier": "^2.0.5",
     "pug": "^3.0.1",
     "reflect-metadata": "^0.1.10",
-    "sqlite3": "^4.0.3",
-    "typeorm": "0.2.25"
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.2.25"
   },
   "scripts": {
     "start": "ts-node-dev src/index.ts",
