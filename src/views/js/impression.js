@@ -34,6 +34,20 @@ var render = function (data) {
     var ema90 = trendPlot.ema(mapping, 90).series();
     ema90.name('90-day weighted avg');
 
+    yScale = trendPlot.yScale();
+
+    // set minimum/maximum - just change these manually as necessary
+    // yScale.minimum(-2);
+    // yScale.maximum(2);
+
+    var grouping = chart.grouping();
+
+    // Set maximum visible points count.
+    grouping.maxVisiblePoints(10_000); // About 27 years of data
+
+    // Get a line for the last visible point
+    indicator = trendPlot.priceIndicator({ series: ema90, value: 'last-visible' }); // Can change this too manually to whatever series you want
+
     // Set up vertical gridlines
     rangePlot.yMinorGrid().palette(['White', null]);
     trendPlot.yMinorGrid().palette(['White', null]);
