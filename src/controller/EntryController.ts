@@ -102,6 +102,7 @@ export class EntryController {
                     .map((range) => {
                         return {
                             name: formatRange(range.start, range.end, range.impression, range.title),
+                            isMultiDay: range.start.getTime() !== range.end.getTime() ? 'true' : 'false',
                             linkParams: this.formatRangeLinkParams(range.start, range.end),
                             start: range.start,
                             end: range.end,

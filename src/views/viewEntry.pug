@@ -73,15 +73,16 @@ html
             a(href=element.deleteLink onclick="return confirm('Are you sure you want to delete this entry?');") Delete
         | Ranges:
 
-        ul
-          each range in element.parentRanges
-            if range.linkParams
-              li #{range.name}
+        div
+          button.toggle-button(type="button") Show Longer Ranges
+          ul.range-list
+            each range in element.parentRanges
+              li(data-long-range=range.isMultiDay)
+                | #{range.name}
                 | &nbsp;
-                a(href="/entries" + range.linkParams) Entry View
-                | &nbsp;
-                a(href="/dates" + range.linkParams) Range View
-            else
-              li #{range.name}
+                if range.linkParams
+                  a(href="/entries" + range.linkParams) Entry View
+                  | &nbsp;
+                  a(href="/dates" + range.linkParams) Range View
         hr
         | !{ element.content }
