@@ -30,5 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // button.nextElementSibling.querySelectorAll("[data-long-range='true']").forEach((range) => {
         //     range.style.display = 'none';
         // });
+        // TODO: refactor so that hiding logic is cleaner, also in addition have one button to toggle all ranges?
     });
 });
