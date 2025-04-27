@@ -73,7 +73,7 @@ html
             a(href=element.deleteLink onclick="return confirm('Are you sure you want to delete this entry?');") Delete
         | Ranges:
 
-        button.toggle-button(type="button") Show
+        button.toggle-button(type="button" data-long-range="true") Hide
         div
           ul.range-list
             each range in element.parentRanges

@@ -14,7 +14,7 @@ onkeyup = (event) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.toggle-button').forEach((button) => {
-        let showLongRanges = false;
+        let showLongRanges = true;
 
         button.addEventListener('click', () => {
             showLongRanges = !showLongRanges;
@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Initially hide long ranges
-        button.nextElementSibling.querySelectorAll("[data-long-range='true']").forEach((range) => {
-            range.style.display = 'none';
-        });
+        // button.nextElementSibling.querySelectorAll("[data-long-range='true']").forEach((range) => {
+        //     range.style.display = 'none';
+        // });
     });
 });
